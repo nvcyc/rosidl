@@ -77,6 +77,11 @@ if(BUILD_TESTING)
     target_link_libraries(test_bounded_vector ${PROJECT_NAME})
   endif()
 
+  ament_add_gtest(test_buffer test/test_buffer.cpp)
+  if(TARGET test_buffer)
+    target_link_libraries(test_buffer ${PROJECT_NAME})
+  endif()
+
   add_performance_test(benchmark_bounded_vector test/benchmark/benchmark_bounded_vector.cpp)
   if(TARGET benchmark_bounded_vector)
     target_link_libraries(benchmark_bounded_vector ${PROJECT_NAME})
