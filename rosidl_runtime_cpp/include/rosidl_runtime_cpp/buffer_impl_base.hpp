@@ -17,6 +17,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <string>
 
 namespace rosidl_runtime_cpp
 {
@@ -46,6 +47,32 @@ public:
   /// Creates a new CpuBufferImpl containing a copy of the data.
   /// @return A unique_ptr to a CPU buffer implementation.
   virtual std::unique_ptr<BufferImplBase<T>> to_cpu() const = 0;
+
+  // ========== Descriptor-based Serialization Interface ==========
+
+  /// Get the fully qualified ROS message type name for the descriptor.
+  /// Examples: "cpu_buffer_msgs/msg/CpuBufferDescriptor",
+  ///           "cuda_buffer_msgs/msg/CudaBufferDescriptor"
+  /// @return Message type name used for serialization.
+  virtual std::string get_descriptor_type_name() const = 0;
+
+  /// Create a descriptor message for serialization.
+  /// The descriptor contains backend-specific metadata needed for transmission.
+  /// @return Type-erased shared_ptr to the descriptor message.
+  /// @note The actual type matches get_descriptor_type_name().
+  virtual std::shared_ptr<void> create_descriptor() const = 0;
+
+  /// Reconstruct buffer implementation from a descriptor message.
+  /// Used during deserialization to recreate the buffer from received metadata.
+  /// @param descriptor Type-erased shared_ptr to descriptor message.
+  /// @return New buffer implementation reconstructed from descriptor.
+  virtual std::unique_ptr<BufferImplBase<T>> from_descriptor(
+    const std::shared_ptr<void> & descriptor) const = 0;
+
+  /// Create a deep copy of this buffer implementation.
+  /// Used to implement value semantics for Buffer<T>.
+  /// @return New buffer implementation containing a copy of this buffer's data.
+  virtual std::unique_ptr<BufferImplBase<T>> clone() const = 0;
 };
 
 }  // namespace rosidl_runtime_cpp

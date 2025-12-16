@@ -71,6 +71,8 @@ for member in message.structure.members:
 @[end if]@
 @#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 @
+#include "rosidl_runtime_cpp/buffer__traits.hpp"
+
 @[for ns in message.structure.namespaced_type.namespaces]@
 namespace @(ns)
 {
@@ -299,21 +301,5 @@ struct has_bounded_size<@(message_typename)>
 template<>
 struct is_message<@(message_typename)>
   : std::true_type {};
-
-// Trait specializations for rosidl_runtime_cpp::Buffer<T>
-// Buffer is not a message itself
-template<typename T, typename Allocator>
-struct is_message<rosidl_runtime_cpp::Buffer<T, Allocator>>
-  : std::false_type {};
-
-// Buffer has dynamic size
-template<typename T, typename Allocator>
-struct has_fixed_size<rosidl_runtime_cpp::Buffer<T, Allocator>>
-  : std::false_type {};
-
-// Buffer is unbounded
-template<typename T, typename Allocator>
-struct has_bounded_size<rosidl_runtime_cpp::Buffer<T, Allocator>>
-  : std::false_type {};
 
 }  // namespace rosidl_generator_traits

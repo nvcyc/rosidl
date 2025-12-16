@@ -52,14 +52,14 @@ public:
   /// Default constructor creates CPU buffer
   Buffer()
   : backend_type_("cpu"),
-    impl_(std::make_shared<CpuBufferImpl<T>>())
+    impl_(std::make_unique<CpuBufferImpl<T>>())
   {
   }
 
   /// Construct with initial size (CPU backend)
   explicit Buffer(size_t count)
   : backend_type_("cpu"),
-    impl_(std::make_shared<CpuBufferImpl<T>>())
+    impl_(std::make_unique<CpuBufferImpl<T>>())
   {
     impl_->resize(count);
   }
@@ -67,15 +67,15 @@ public:
   /// Construct with initial size and value (CPU backend)
   Buffer(size_t count, const T & value)
   : backend_type_("cpu"),
-    impl_(std::make_shared<CpuBufferImpl<T>>())
+    impl_(std::make_unique<CpuBufferImpl<T>>())
   {
     get_cpu_impl()->get_storage().assign(count, value);
   }
 
-  /// Copy constructor (shares impl via shared_ptr)
+  /// Copy constructor (deep copy via clone())
   Buffer(const Buffer & other)
   : backend_type_(other.backend_type_),
-    impl_(other.impl_)
+    impl_(other.impl_ ? other.impl_->clone() : nullptr)
   {
   }
 
@@ -86,12 +86,12 @@ public:
   {
   }
 
-  /// Copy assignment
+  /// Copy assignment (deep copy via clone())
   Buffer & operator=(const Buffer & other)
   {
     if (this != &other) {
       backend_type_ = other.backend_type_;
-      impl_ = other.impl_;
+      impl_ = other.impl_ ? other.impl_->clone() : nullptr;
     }
     return *this;
   }
@@ -213,9 +213,9 @@ public:
 
   // ========== Capacity (All backends) ==========
 
-  bool empty() const {return impl_->size() == 0;}
+  bool empty() const {return !impl_ || impl_->size() == 0;}
 
-  size_t size() const {return impl_->size();}
+  size_t size() const {return impl_ ? impl_->size() : 0;}
 
   void reserve(size_t new_cap)
   {
@@ -239,10 +239,21 @@ public:
 
   void clear() {impl_->clear();}
 
-  void resize(size_t n) {impl_->resize(n);}
+  void resize(size_t n)
+  {
+    if (!impl_) {
+      impl_ = std::make_unique<CpuBufferImpl<T>>();
+      backend_type_ = "cpu";
+    }
+    impl_->resize(n);
+  }
 
   void resize(size_t n, const T & value)
   {
+    if (!impl_) {
+      impl_ = std::make_unique<CpuBufferImpl<T>>();
+      backend_type_ = "cpu";
+    }
     check_cpu_backend();
     get_cpu_impl()->get_storage().resize(n, value);
   }
@@ -313,18 +324,18 @@ public:
   /// This allows vendor-specific backend libraries to inject their implementations.
   /// @param impl Backend implementation instance.
   /// @param backend_type Backend identifier string.
-  void set_impl(std::shared_ptr<BufferImplBase<T>> impl, const std::string & backend_type)
+  void set_impl(std::unique_ptr<BufferImplBase<T>> impl, const std::string & backend_type)
   {
-    impl_ = impl;
+    impl_ = std::move(impl);
     backend_type_ = backend_type;
   }
 
-  /// Get the implementation pointer (for serialization).
-  std::shared_ptr<BufferImplBase<T>> get_impl() const {return impl_;}
+  /// Get the implementation pointer (for serialization) - returns raw pointer for read-only access
+  const BufferImplBase<T>* get_impl() const {return impl_.get();}
 
 private:
   std::string backend_type_;  ///< Backend identifier ("cpu", "cuda", etc.)
-  std::shared_ptr<BufferImplBase<T>> impl_;  ///< Shared pointer for zero-copy safety
+  std::unique_ptr<BufferImplBase<T>> impl_;  ///< Unique pointer for proper ownership and value semantics
 
   /// Throw exception if not CPU backend
   void check_cpu_backend() const
