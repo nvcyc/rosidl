@@ -22,60 +22,60 @@
 namespace rosidl_runtime_cpp
 {
 
-/// Abstract base class for buffer backend implementations.
-/// Provides minimal interface for metadata and conversion operations.
+/// Abstract base class for all buffer implementations (CPU, CUDA, ROCm, etc.).
+/// Provides a common interface for buffer operations and serialization.
 template<typename T>
 class BufferImplBase
 {
 public:
   virtual ~BufferImplBase() = default;
 
+  // ========== Core Buffer Operations ==========
+
   /// Get the number of elements in the buffer.
   virtual size_t size() const = 0;
 
-  /// Resize the buffer to contain n elements.
+  /// Resize the buffer to hold n elements.
+  /// @param n Number of elements
   virtual void resize(size_t n) = 0;
 
-  /// Clear the buffer, removing all elements.
+  /// Clear all elements from the buffer.
   virtual void clear() = 0;
 
-  /// Get opaque backend-specific handle (e.g., device pointer).
-  /// Returns nullptr for empty buffers.
+  /// Get a backend-specific handle to the underlying buffer.
+  /// For CPU buffers, this returns a pointer to the data.
+  /// For GPU buffers, this returns a device pointer.
+  /// @return Opaque pointer to backend-specific buffer handle
   virtual const void * get_backend_handle() const = 0;
 
-  /// Convert buffer contents to CPU memory.
-  /// Creates a new CpuBufferImpl containing a copy of the data.
-  /// @return A unique_ptr to a CPU buffer implementation.
+  /// Create a CPU copy of this buffer.
+  /// If already on CPU, may return a copy or the same instance.
+  /// @return New BufferImplBase instance on CPU
   virtual std::unique_ptr<BufferImplBase<T>> to_cpu() const = 0;
 
   // ========== Descriptor-based Serialization Interface ==========
 
-  /// Get the fully qualified ROS message type name for the descriptor.
-  /// Examples: "cpu_buffer_msgs/msg/CpuBufferDescriptor",
-  ///           "cuda_buffer_msgs/msg/CudaBufferDescriptor"
-  /// @return Message type name used for serialization.
+  /// Get the descriptor message type name for this backend.
+  /// For example, "isaac_ros_cuda_buffer_msgs::msg::CudaBufferDescriptor"
+  /// @return Fully qualified descriptor type name
   virtual std::string get_descriptor_type_name() const = 0;
 
-  /// Create a descriptor message for serialization.
-  /// The descriptor contains backend-specific metadata needed for transmission.
-  /// @return Type-erased shared_ptr to the descriptor message.
-  /// @note The actual type matches get_descriptor_type_name().
+  /// Create a descriptor message from this buffer implementation.
+  /// The descriptor contains metadata needed to serialize/deserialize the buffer.
+  /// @return Type-erased descriptor message (std::shared_ptr<DescriptorMessageType>)
   virtual std::shared_ptr<void> create_descriptor() const = 0;
 
-  /// Reconstruct buffer implementation from a descriptor message.
-  /// Used during deserialization to recreate the buffer from received metadata.
-  /// @param descriptor Type-erased shared_ptr to descriptor message.
-  /// @return New buffer implementation reconstructed from descriptor.
+  /// Reconstruct a buffer from a descriptor message.
+  /// @param descriptor Type-erased descriptor message pointer
+  /// @return New BufferImplBase instance reconstructed from descriptor
   virtual std::unique_ptr<BufferImplBase<T>> from_descriptor(
     const std::shared_ptr<void> & descriptor) const = 0;
 
-  /// Create a deep copy of this buffer implementation.
-  /// Used to implement value semantics for Buffer<T>.
-  /// @return New buffer implementation containing a copy of this buffer's data.
+  /// Create a deep copy of this buffer.
+  /// @return New BufferImplBase instance with copied data
   virtual std::unique_ptr<BufferImplBase<T>> clone() const = 0;
 };
 
 }  // namespace rosidl_runtime_cpp
 
 #endif  // ROSIDL_RUNTIME_CPP__BUFFER_IMPL_BASE_HPP_
-
