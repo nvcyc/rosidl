@@ -108,7 +108,7 @@ def msg_type_to_cpp(type_):
 
     Example input: uint32, std_msgs/String, std_msgs/String[3]
     Example output: uint32_t, std_msgs::String_<ContainerAllocator>,
-                    rosidl_runtime_cpp::Buffer<std_msgs::String_<ContainerAllocator>>
+                    std::array<std_msgs::String_<ContainerAllocator>, 3>
 
     @param type_: The message type
     @type type_: rosidl_parser.Type
@@ -122,14 +122,14 @@ def msg_type_to_cpp(type_):
                 ('rosidl_runtime_cpp::Buffer<%s, typename std::allocator_traits<ContainerAllocator>::template ' +
                  'rebind_alloc<%s>>') % (cpp_type, cpp_type)
         elif isinstance(type_, BoundedSequence):
-            # Use Buffer<T> for bounded sequences  
             return \
-                ('rosidl_runtime_cpp::Buffer<%s, typename std::allocator_traits' +
-                 '<ContainerAllocator>::template rebind_alloc<%s>>') % (cpp_type, cpp_type)
+                ('rosidl_runtime_cpp::BoundedVector<%s, %u, typename std::allocator_traits' +
+                 '<ContainerAllocator>::template rebind_alloc<%s>>') % (cpp_type,
+                                                                        type_.maximum_size,
+                                                                        cpp_type)
         else:
             assert isinstance(type_, Array)
-            # Use Buffer<T> for fixed-size arrays
-            return 'rosidl_runtime_cpp::Buffer<%s, typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<%s>>' % (cpp_type, cpp_type)
+            return 'std::array<%s, %u>' % (cpp_type, type_.size)
     else:
         return cpp_type
 
