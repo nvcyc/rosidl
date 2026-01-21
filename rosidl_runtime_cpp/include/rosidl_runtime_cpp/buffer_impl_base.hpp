@@ -19,6 +19,10 @@
 #include <memory>
 #include <string>
 
+// Forward declaration to avoid dependency on rmw
+struct rmw_gid_s;
+typedef struct rmw_gid_s rmw_gid_t;
+
 namespace rosidl_runtime_cpp
 {
 
@@ -62,14 +66,17 @@ public:
 
   /// Create a descriptor message from this buffer implementation.
   /// The descriptor contains metadata needed to serialize/deserialize the buffer.
+  /// @param subscriber_gid The GID of the target subscriber for peer-to-peer channels
   /// @return Type-erased descriptor message (std::shared_ptr<DescriptorMessageType>)
-  virtual std::shared_ptr<void> create_descriptor() const = 0;
+  virtual std::shared_ptr<void> create_descriptor(const rmw_gid_t & subscriber_gid) const = 0;
 
   /// Reconstruct a buffer from a descriptor message.
   /// @param descriptor Type-erased descriptor message pointer
+  /// @param publisher_gid The GID of the publisher for peer-to-peer channels
   /// @return New BufferImplBase instance reconstructed from descriptor
   virtual std::unique_ptr<BufferImplBase<T>> from_descriptor(
-    const std::shared_ptr<void> & descriptor) const = 0;
+    const std::shared_ptr<void> & descriptor,
+    const rmw_gid_t & publisher_gid) const = 0;
 
   /// Create a deep copy of this buffer.
   /// @return New BufferImplBase instance with copied data

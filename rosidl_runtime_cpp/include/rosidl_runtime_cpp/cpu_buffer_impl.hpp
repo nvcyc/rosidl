@@ -66,17 +66,20 @@ public:
     return "std::vector";
   }
 
-  std::shared_ptr<void> create_descriptor() const override
+  std::shared_ptr<void> create_descriptor(const rmw_gid_t & subscriber_gid) const override
   {
     // Not used for CPU backend - serializes directly as std::vector
+    (void)subscriber_gid;
     throw std::runtime_error("CPU backend does not use descriptors");
   }
 
   std::unique_ptr<BufferImplBase<T>> from_descriptor(
-    const std::shared_ptr<void> & descriptor) const override
+    const std::shared_ptr<void> & descriptor,
+    const rmw_gid_t & publisher_gid) const override
   {
     // Not used for CPU backend - deserializes directly as std::vector
     (void)descriptor;
+    (void)publisher_gid;
     throw std::runtime_error("CPU backend does not use descriptors");
   }
 
