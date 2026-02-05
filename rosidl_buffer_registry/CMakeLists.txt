@@ -30,10 +30,10 @@ target_compile_definitions(${PROJECT_NAME}
   PRIVATE "ROSIDL_BUFFER_REGISTRY_BUILDING_DLL"
 )
 
-ament_target_dependencies(${PROJECT_NAME}
-  rmw
-  rosidl_runtime_cpp
-  pluginlib
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  rmw::rmw
+  rosidl_runtime_cpp::rosidl_runtime_cpp
+  pluginlib::pluginlib
 )
 
 # Install headers
@@ -70,11 +70,11 @@ if(BUILD_TESTING)
     target_include_directories(test_buffer_backend_registry PRIVATE
       ${CMAKE_CURRENT_SOURCE_DIR}/test
     )
-    target_link_libraries(test_buffer_backend_registry ${PROJECT_NAME})
-    ament_target_dependencies(test_buffer_backend_registry
-      rmw
-      rosidl_runtime_cpp
-      pluginlib
+    target_link_libraries(test_buffer_backend_registry
+      ${PROJECT_NAME}
+      rmw::rmw
+      rosidl_runtime_cpp::rosidl_runtime_cpp
+      pluginlib::pluginlib
     )
   endif()
 endif()
