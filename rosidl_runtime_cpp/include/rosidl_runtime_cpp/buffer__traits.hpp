@@ -17,26 +17,26 @@
 
 #include <type_traits>
 
-#include "rosidl_runtime_cpp/buffer.hpp"
+#include "rcl_buffer/buffer.hpp"
 #include "rosidl_runtime_cpp/traits.hpp"
 
 namespace rosidl_generator_traits
 {
 
-// Trait specializations for rosidl_runtime_cpp::Buffer<T>
+// Trait specializations for rcl_buffer::Buffer<T>
 // Buffer is not a message itself
 template<typename T, typename Allocator>
-struct is_message<rosidl_runtime_cpp::Buffer<T, Allocator>>
+struct is_message<rcl_buffer::Buffer<T, Allocator>>
   : std::false_type {};
 
 // Buffer has dynamic size
 template<typename T, typename Allocator>
-struct has_fixed_size<rosidl_runtime_cpp::Buffer<T, Allocator>>
+struct has_fixed_size<rcl_buffer::Buffer<T, Allocator>>
   : std::false_type {};
 
 // Buffer is unbounded
 template<typename T, typename Allocator>
-struct has_bounded_size<rosidl_runtime_cpp::Buffer<T, Allocator>>
+struct has_bounded_size<rcl_buffer::Buffer<T, Allocator>>
   : std::false_type {};
 
 }  // namespace rosidl_generator_traits
