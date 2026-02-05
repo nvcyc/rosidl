@@ -16,6 +16,7 @@
 #define ROSIDL_RUNTIME_CPP__BUFFER_HPP_
 
 #include <algorithm>
+#include <initializer_list>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -72,6 +73,14 @@ public:
     get_cpu_impl()->get_storage().assign(count, value);
   }
 
+  /// Construct from initializer list (CPU backend)
+  Buffer(std::initializer_list<T> init)
+  : backend_type_("cpu"),
+    impl_(std::make_unique<CpuBufferImpl<T>>())
+  {
+    get_cpu_impl()->get_storage().assign(init);
+  }
+
   /// Copy constructor (deep copy via clone())
   Buffer(const Buffer & other)
   : backend_type_(other.backend_type_),
@@ -103,6 +112,14 @@ public:
       backend_type_ = std::move(other.backend_type_);
       impl_ = std::move(other.impl_);
     }
+    return *this;
+  }
+
+  /// Assignment from initializer list (CPU backend)
+  Buffer & operator=(std::initializer_list<T> init)
+  {
+    check_cpu_backend();
+    get_cpu_impl()->get_storage().assign(init);
     return *this;
   }
 
