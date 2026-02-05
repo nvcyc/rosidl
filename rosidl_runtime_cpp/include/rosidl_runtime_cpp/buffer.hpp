@@ -16,6 +16,7 @@
 #define ROSIDL_RUNTIME_CPP__BUFFER_HPP_
 
 #include <algorithm>
+#include <initializer_list>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -72,6 +73,30 @@ public:
     get_cpu_impl()->get_storage().assign(count, value);
   }
 
+  /// Construct from std::vector (copy) - for backward compatibility
+  Buffer(const std::vector<T> & vec)  // NOLINT(runtime/explicit) - intentionally implicit
+  : backend_type_("cpu"),
+    impl_(std::make_unique<CpuBufferImpl<T>>())
+  {
+    get_cpu_impl()->get_storage() = vec;
+  }
+
+  /// Construct from std::vector (move) - for backward compatibility
+  Buffer(std::vector<T> && vec)  // NOLINT(runtime/explicit) - intentionally implicit
+  : backend_type_("cpu"),
+    impl_(std::make_unique<CpuBufferImpl<T>>())
+  {
+    get_cpu_impl()->get_storage() = std::move(vec);
+  }
+
+  /// Construct from initializer list - for backward compatibility
+  Buffer(std::initializer_list<T> init)
+  : backend_type_("cpu"),
+    impl_(std::make_unique<CpuBufferImpl<T>>())
+  {
+    get_cpu_impl()->get_storage() = init;
+  }
+
   /// Copy constructor (deep copy via clone())
   Buffer(const Buffer & other)
   : backend_type_(other.backend_type_),
@@ -103,6 +128,33 @@ public:
       backend_type_ = std::move(other.backend_type_);
       impl_ = std::move(other.impl_);
     }
+    return *this;
+  }
+
+  /// Assignment from std::vector (copy) - for backward compatibility
+  Buffer & operator=(const std::vector<T> & vec)
+  {
+    backend_type_ = "cpu";
+    impl_ = std::make_unique<CpuBufferImpl<T>>();
+    get_cpu_impl()->get_storage() = vec;
+    return *this;
+  }
+
+  /// Assignment from std::vector (move) - for backward compatibility
+  Buffer & operator=(std::vector<T> && vec)
+  {
+    backend_type_ = "cpu";
+    impl_ = std::make_unique<CpuBufferImpl<T>>();
+    get_cpu_impl()->get_storage() = std::move(vec);
+    return *this;
+  }
+
+  /// Assignment from initializer list - for backward compatibility
+  Buffer & operator=(std::initializer_list<T> init)
+  {
+    backend_type_ = "cpu";
+    impl_ = std::make_unique<CpuBufferImpl<T>>();
+    get_cpu_impl()->get_storage() = init;
     return *this;
   }
 
