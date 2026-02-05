@@ -1,4 +1,4 @@
-// Copyright 2024 NVIDIA Corporation
+// Copyright 2026 NVIDIA Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 
 #include "rosidl_buffer_registry/buffer_backend_registry.hpp"
 
-#include <iostream>
 #include <mutex>
 #include <stdexcept>
 
@@ -84,30 +83,24 @@ void BufferBackendRegistry::load_plugins()
 
       try {
         auto declared_classes = loader_->getDeclaredClasses();
-
-        std::cerr << "[BufferBackendRegistry] Discovered " << declared_classes.size() <<
-          " plugin(s)\n";
-
         if (declared_classes.empty()) {
-          std::cerr << "[BufferBackendRegistry] No buffer backend plugins found\n";
+          RCUTILS_LOG_INFO_NAMED("rosidl_buffer_registry", "No buffer backend plugins found");
         } else {
+          RCUTILS_LOG_INFO_NAMED("rosidl_buffer_registry", "Discovered %d buffer backend plugin(s)", declared_classes.size());
           for (const auto & class_name : declared_classes) {
-            std::cerr << "[BufferBackendRegistry] Loading plugin: " << class_name << "\n";
             try {
               auto backend = loader_->createSharedInstance(class_name);
               // Use the class name as the backend name (e.g., "cuda")
               register_backend(class_name, backend);
-              std::cerr << "[BufferBackendRegistry] Successfully registered: " << class_name <<
-                "\n";
+              RCUTILS_LOG_INFO_NAMED("rosidl_buffer_registry", "Loaded buffer backend plugin: %s", class_name.c_str());
             } catch (const std::exception & e) {
-              std::cerr << "[BufferBackendRegistry] Failed to load " << class_name << ": " <<
-                e.what() << "\n";
+              RCUTILS_LOG_ERROR_NAMED("rosidl_buffer_registry", "Failed to load %s: %s", class_name.c_str(), e.what());
               continue;
             }
           }
         }
       } catch (const std::exception & e) {
-        std::cerr << "[BufferBackendRegistry] Plugin discovery error: " << e.what() << "\n";
+        RCUTILS_LOG_ERROR_NAMED("rosidl_buffer_registry", "Buffer backend plugin discovery error: %s", e.what());
       }
 
       plugins_loaded_ = true;
