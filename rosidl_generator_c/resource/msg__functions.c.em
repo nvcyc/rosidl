@@ -29,7 +29,7 @@ from collections import OrderedDict
 from rosidl_parser.definition import UnboundedSequence
 includes = OrderedDict()
 
-# Check if this message has any uint8[] buffer fields (for sentinel-aware fini)
+# Check if this message has any uint8[] buffer fields (for is_rcl_buffer-aware fini)
 has_buffer_fields = False
 for member in message.structure.members:
     if isinstance(member.type, UnboundedSequence) and isinstance(member.type.value_type, BasicType) and member.type.value_type.typename == 'uint8':
@@ -79,15 +79,7 @@ for member in message.structure.members:
 @[    end for]@
 @[end if]@
 @#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-@[if has_buffer_fields]@
-
-// Sentinel value for buffer-backed uint8[] sequences.
-// When capacity == this value, the data pointer holds a borrowed rcl_buffer::Buffer<uint8_t>*
-// instead of a malloc'd byte array. SIZE_MAX can never occur from a real allocation.
-#ifndef RCL_BUFFER_SENTINEL_CAPACITY
-#define RCL_BUFFER_SENTINEL_CAPACITY ((size_t)-1)
-#endif
-@[end if]@
+@# Buffer-backed uint8[] fields use the is_rcl_buffer flag on the sequence struct.
 
 @#######################################################################
 @# message functions
@@ -241,15 +233,13 @@ for member in message.structure.members:
             lines.append('  %s__fini(&msg->%s[i]);' % (basetype_to_c(member.type.value_type), member.name))
             lines.append('}')
     elif isinstance(member.type, AbstractSequence):
-        # For uint8[] fields, check for buffer sentinel before calling fini.
-        # When capacity == RCL_BUFFER_SENTINEL_CAPACITY, the data pointer holds a
-        # borrowed rcl_buffer::Buffer<uint8_t>* — do not free it, just clear the fields.
         if isinstance(member.type, UnboundedSequence) and isinstance(member.type.value_type, BasicType) and member.type.value_type.typename == 'uint8':
-            lines.append('if (msg->%s.capacity == RCL_BUFFER_SENTINEL_CAPACITY) {' % member.name)
-            lines.append('  // Buffer-backed sentinel: data is a borrowed pointer, do not free')
+            lines.append('if (msg->%s.is_rcl_buffer) {' % member.name)
+            lines.append('  // Buffer-backed: data is a borrowed pointer, do not free')
             lines.append('  msg->%s.data = NULL;' % member.name)
             lines.append('  msg->%s.size = 0;' % member.name)
             lines.append('  msg->%s.capacity = 0;' % member.name)
+            lines.append('  msg->%s.is_rcl_buffer = false;' % member.name)
             lines.append('} else {')
             lines.append('  %s__fini(&msg->%s);' % (idl_type_to_c(member.type), member.name))
             lines.append('}')
