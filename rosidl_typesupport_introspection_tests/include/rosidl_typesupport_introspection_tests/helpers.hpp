@@ -25,7 +25,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include <rcl_buffer/buffer.hpp>
+#include <rosidl_buffer/buffer.hpp>
 #include <rosidl_runtime_cpp/bounded_vector.hpp>
 
 /// Performs a deep-copy of the given `value`.
@@ -88,10 +88,10 @@ length(const std::vector<T> & vector)
   return vector.size();
 }
 
-/// Returns the size of an rcl_buffer::Buffer.
+/// Returns the size of an rosidl::Buffer.
 template<typename T>
 inline size_t
-length(const rcl_buffer::Buffer<T> & buffer)
+length(const rosidl::Buffer<T> & buffer)
 {
   return buffer.size();
 }
@@ -122,7 +122,7 @@ getitem(const std::vector<bool> & vector, const size_t index)
 /// Gets a reference to the item at `index` in `buffer`.
 template<typename T>
 inline const T &
-getitem(const rcl_buffer::Buffer<T> & buffer, const size_t index)
+getitem(const rosidl::Buffer<T> & buffer, const size_t index)
 {
   return buffer[index];
 }

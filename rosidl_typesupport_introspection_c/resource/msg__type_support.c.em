@@ -42,7 +42,7 @@ header_files = [
 
 function_prefix = '__'.join([package_name] + list(interface_path.parents[0].parts) + [message.structure.namespaced_type.name]) + '__rosidl_typesupport_introspection_c'
 if any_buffer_field:
-    header_files.append('rcl_buffer/c_helpers.h')
+    header_files.append('rosidl_buffer/c_helpers.h')
 }@
 @[for header_file in header_files]@
 @[    if header_file in include_directives]@
@@ -142,8 +142,8 @@ size_t @(function_prefix)__size_function__@(message.structure.namespaced_type.na
 {
   const @(idl_type_to_c(member.type)) * member =
     (const @(idl_type_to_c(member.type)) *)(untyped_member);
-  if (member->is_rcl_buffer) {
-    return rcl_buffer_uint8_size((const void *)member->data);
+  if (member->is_rosidl_buffer) {
+    return rosidl_buffer_uint8_size((const void *)member->data);
   }
   return member->size;
 }
@@ -153,8 +153,8 @@ const void * @(function_prefix)__get_const_function__@(message.structure.namespa
 {
   const @(idl_type_to_c(member.type)) * member =
     (const @(idl_type_to_c(member.type)) *)(untyped_member);
-  if (member->is_rcl_buffer) {
-    return &rcl_buffer_uint8_data((const void *)member->data)[index];
+  if (member->is_rosidl_buffer) {
+    return &rosidl_buffer_uint8_data((const void *)member->data)[index];
   }
   return &member->data[index];
 }
@@ -164,8 +164,8 @@ void * @(function_prefix)__get_function__@(message.structure.namespaced_type.nam
 {
   @(idl_type_to_c(member.type)) * member =
     (@(idl_type_to_c(member.type)) *)(untyped_member);
-  if (member->is_rcl_buffer) {
-    return &rcl_buffer_uint8_data_mut((void *)member->data)[index];
+  if (member->is_rosidl_buffer) {
+    return &rosidl_buffer_uint8_data_mut((void *)member->data)[index];
   }
   return &member->data[index];
 }
@@ -195,8 +195,8 @@ bool @(function_prefix)__resize_function__@(message.structure.namespaced_type.na
 {
   @(idl_type_to_c(member.type)) * member =
     (@(idl_type_to_c(member.type)) *)(untyped_member);
-  if (member->is_rcl_buffer) {
-    rcl_buffer_uint8_resize((void *)member->data, size);
+  if (member->is_rosidl_buffer) {
+    rosidl_buffer_uint8_resize((void *)member->data, size);
     return true;
   }
   @(idl_type_to_c(member.type))__fini(member);
@@ -345,8 +345,8 @@ for index, member in enumerate(message.structure.members):
     print('    %s,  // assign(index, value) function pointer' % ('%s__assign_function__%s' % (function_prefix, function_suffix) if function_suffix else 'NULL'))
     # void(void *, size_t) resize_function
     print('    %s,  // resize(index) function pointer' % ('%s__resize_function__%s' % (function_prefix, function_suffix) if function_suffix and isinstance(member.type, AbstractSequence) else 'NULL'))
-    # bool is_rcl_buffer_
-    print('    %s  // is_rcl_buffer' % ('true' if member.name in buffer_field_names else 'false'))
+    # bool is_rosidl_buffer_
+    print('    %s  // is_rosidl_buffer' % ('true' if member.name in buffer_field_names else 'false'))
 
     if index < len(message.structure.members) - 1:
         print('  },')

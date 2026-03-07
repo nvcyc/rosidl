@@ -41,7 +41,7 @@ if(BUILD_TESTING)
     SKIP_INSTALL
   )
 
-  find_package(rcl_buffer REQUIRED)
+  find_package(rosidl_buffer REQUIRED)
   find_package(rcutils REQUIRED)
   find_package(rcpputils REQUIRED)
   find_package(rosidl_typesupport_interface REQUIRED)
@@ -49,7 +49,7 @@ if(BUILD_TESTING)
   add_library(${PROJECT_NAME}_library INTERFACE)
   target_include_directories(${PROJECT_NAME}_library INTERFACE include/)
   target_link_libraries(${PROJECT_NAME}_library INTERFACE
-    rcl_buffer::rcl_buffer
+    rosidl_buffer::rosidl_buffer
     rcutils::rcutils
     rcpputils::rcpputils
     rosidl_typesupport_interface::rosidl_typesupport_interface

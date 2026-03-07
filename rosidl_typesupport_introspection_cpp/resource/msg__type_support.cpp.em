@@ -45,7 +45,7 @@ header_files = [
     'rosidl_typesupport_introspection_cpp/visibility_control.h',
 ]
 if any_buffer_field:
-    header_files.append('rcl_buffer/buffer.hpp')
+    header_files.append('rosidl_buffer/buffer.hpp')
 }@
 @[for header_file in header_files]@
 @[    if header_file in include_directives]@
@@ -99,14 +99,14 @@ elif isinstance(member.type.value_type, NamespacedType):
 @[    if member.name in buffer_field_names]@
 size_t size_function__@(message.structure.namespaced_type.name)__@(member.name)(const void * untyped_member)
 {
-  const auto * member = reinterpret_cast<const rcl_buffer::Buffer<uint8_t> *>(untyped_member);
+  const auto * member = reinterpret_cast<const rosidl::Buffer<uint8_t> *>(untyped_member);
   return member->size();
 }
 
 const void * get_const_function__@(message.structure.namespaced_type.name)__@(member.name)(const void * untyped_member, size_t index)
 {
   const auto & member =
-    *reinterpret_cast<const rcl_buffer::Buffer<uint8_t> *>(untyped_member);
+    *reinterpret_cast<const rosidl::Buffer<uint8_t> *>(untyped_member);
   member.throw_if_not_cpu_backend();
   return &member[index];
 }
@@ -114,7 +114,7 @@ const void * get_const_function__@(message.structure.namespaced_type.name)__@(me
 void * get_function__@(message.structure.namespaced_type.name)__@(member.name)(void * untyped_member, size_t index)
 {
   auto & member =
-    *reinterpret_cast<rcl_buffer::Buffer<uint8_t> *>(untyped_member);
+    *reinterpret_cast<rosidl::Buffer<uint8_t> *>(untyped_member);
   member.throw_if_not_cpu_backend();
   return &member[index];
 }
@@ -140,7 +140,7 @@ void assign_function__@(message.structure.namespaced_type.name)__@(member.name)(
 void resize_function__@(message.structure.namespaced_type.name)__@(member.name)(void * untyped_member, size_t size)
 {
   auto * member =
-    reinterpret_cast<rcl_buffer::Buffer<uint8_t> *>(untyped_member);
+    reinterpret_cast<rosidl::Buffer<uint8_t> *>(untyped_member);
   member->throw_if_not_cpu_backend();
   member->resize(size);
 }
@@ -292,8 +292,8 @@ for index, member in enumerate(message.structure.members):
     print('    %s,  // assign(index, value) function pointer' % ('assign_function__%s' % function_suffix if isinstance(member.type, AbstractNestedType) else 'nullptr'))
     # void(void *, size_t) resize_function
     print('    %s,  // resize(index) function pointer' % ('resize_function__%s' % function_suffix if isinstance(member.type, AbstractSequence) else 'nullptr'))
-    # bool is_rcl_buffer_
-    print('    %s  // is_rcl_buffer' % ('true' if member.name in buffer_field_names else 'false'))
+    # bool is_rosidl_buffer_
+    print('    %s  // is_rosidl_buffer' % ('true' if member.name in buffer_field_names else 'false'))
 
     if index < len(message.structure.members) - 1:
         print('  },')
