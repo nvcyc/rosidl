@@ -42,11 +42,6 @@ public:
 
   size_t size() const override {return storage_.size();}
 
-  const void * get_backend_handle() const override
-  {
-    return storage_.empty() ? nullptr : storage_.data();
-  }
-
   std::unique_ptr<BufferImplBase<T>> to_cpu() const override
   {
     auto copy = std::make_unique<CpuBufferImpl<T>>();

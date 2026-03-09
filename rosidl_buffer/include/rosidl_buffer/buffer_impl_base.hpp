@@ -43,12 +43,6 @@ public:
   /// Required by the serialization layer for all backends.
   virtual size_t size() const = 0;
 
-  /// Get a backend-specific handle to the underlying buffer.
-  /// For CPU buffers, this returns a pointer to the data.
-  /// For GPU buffers, this returns a device pointer.
-  /// @return Opaque pointer to backend-specific buffer handle
-  virtual const void * get_backend_handle() const = 0;
-
   /// Create a CPU copy of this buffer.
   /// If already on CPU, may return a copy or the same instance.
   /// @return New BufferImplBase instance on CPU

@@ -48,11 +48,6 @@ public:
 
   size_t size() const override {return data_.size();}
 
-  const void * get_backend_handle() const override
-  {
-    return data_.empty() ? nullptr : data_.data();
-  }
-
   std::unique_ptr<rosidl::BufferImplBase<T>> to_cpu() const override
   {
     auto cpu = std::make_unique<rosidl::CpuBufferImpl<T>>();

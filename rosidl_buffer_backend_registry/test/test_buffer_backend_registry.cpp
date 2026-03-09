@@ -81,20 +81,17 @@ TEST(TestDummyBufferImpl, marker_verification) {
   EXPECT_EQ(0xDEADBEEFu, impl2.get_marker());
 }
 
-// Test backend handle access
-TEST(TestDummyBufferImpl, backend_handle) {
+// Test data access via get_data()
+TEST(TestDummyBufferImpl, data_access) {
   DummyBufferImpl<int> impl;
 
-  // Empty should return nullptr
-  EXPECT_EQ(nullptr, impl.get_backend_handle());
+  EXPECT_TRUE(impl.get_data().empty());
 
   impl.get_data().resize(3);
   impl.get_data()[0] = 100;
 
-  const void * handle = impl.get_backend_handle();
-  ASSERT_NE(nullptr, handle);
-
-  const int * ptr = static_cast<const int *>(handle);
+  const int * ptr = impl.get_data().data();
+  ASSERT_NE(nullptr, ptr);
   EXPECT_EQ(100, ptr[0]);
 }
 

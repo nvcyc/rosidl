@@ -391,19 +391,16 @@ TEST(TestCpuBufferImpl, to_cpu) {
   EXPECT_EQ(3, cpu_impl->get_storage()[2]);
 }
 
-// Test CpuBufferImpl::get_backend_handle()
-TEST(TestCpuBufferImpl, backend_handle) {
+// Test CpuBufferImpl storage data pointer
+TEST(TestCpuBufferImpl, storage_data_pointer) {
   CpuBufferImpl<int> impl;
 
-  // Empty buffer should return nullptr
-  EXPECT_EQ(nullptr, impl.get_backend_handle());
+  EXPECT_TRUE(impl.get_storage().empty());
 
   impl.get_storage().resize(5);
-  const void * handle = impl.get_backend_handle();
-  ASSERT_NE(nullptr, handle);
+  const int * data_ptr = impl.get_storage().data();
+  ASSERT_NE(nullptr, data_ptr);
 
-  // Verify it points to the underlying data
-  const int * data_ptr = static_cast<const int *>(handle);
   impl.get_storage()[0] = 42;
   EXPECT_EQ(42, data_ptr[0]);
 }
