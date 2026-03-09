@@ -16,7 +16,6 @@
 #define ROSIDL_BUFFER__CPU_BUFFER_IMPL_HPP_
 
 #include <memory>
-#include <stdexcept>
 #include <vector>
 
 #include "rosidl_buffer/buffer_impl_base.hpp"
@@ -54,23 +53,6 @@ public:
     auto copy = std::make_unique<CpuBufferImpl<T>>();
     copy->storage_ = storage_;
     return copy;
-  }
-
-  // CPU backend doesn't use descriptors - serializes directly as std::vector
-
-  std::shared_ptr<void> create_descriptor(const rmw_gid_t & subscriber_gid) const override
-  {
-    (void)subscriber_gid;
-    throw std::runtime_error("CPU backend does not use descriptors");
-  }
-
-  std::unique_ptr<BufferImplBase<T>> from_descriptor(
-    const std::shared_ptr<void> & descriptor,
-    const rmw_gid_t & publisher_gid) const override
-  {
-    (void)descriptor;
-    (void)publisher_gid;
-    throw std::runtime_error("CPU backend does not use descriptors");
   }
 
 private:

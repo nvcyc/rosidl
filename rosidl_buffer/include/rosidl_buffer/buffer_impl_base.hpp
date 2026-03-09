@@ -18,26 +18,21 @@
 #include <cstddef>
 #include <memory>
 
-// Forward declaration to avoid dependency on rmw
-struct rmw_gid_s;
-typedef struct rmw_gid_s rmw_gid_t;
-
 namespace rosidl
 {
 
 /// Abstract base class for all buffer implementations (CPU, CUDA, ROCm, etc.).
 ///
 /// This base keeps only what the Buffer<T> pimpl and the serialization layer
-/// need.  Backend-specific APIs (element access, resize, iterators, etc.) are
-/// the responsibility of each concrete implementation; the CPU path goes
-/// through CpuBufferImpl directly.
+/// need.  Backend-specific APIs (element access, resize, iterators,
+/// descriptor serialization, etc.) are the responsibility of each concrete
+/// implementation or the BufferBackend plugin; the CPU path goes through
+/// CpuBufferImpl directly.
 template<typename T>
 class BufferImplBase
 {
 public:
   virtual ~BufferImplBase() = default;
-
-  // ========== Core Buffer Operations ==========
 
   /// Get the number of elements in the buffer.
   /// Required by the serialization layer for all backends.
@@ -51,22 +46,6 @@ public:
   /// Create a deep copy of this buffer.
   /// @return New BufferImplBase instance with copied data
   virtual std::unique_ptr<BufferImplBase<T>> clone() const = 0;
-
-  // ========== Descriptor-based Serialization Interface ==========
-
-  /// Create a descriptor message from this buffer implementation.
-  /// The descriptor contains metadata needed to serialize/deserialize the buffer.
-  /// @param subscriber_gid The GID of the target subscriber for peer-to-peer channels
-  /// @return Type-erased descriptor message (std::shared_ptr<DescriptorMessageType>)
-  virtual std::shared_ptr<void> create_descriptor(const rmw_gid_t & subscriber_gid) const = 0;
-
-  /// Reconstruct a buffer from a descriptor message.
-  /// @param descriptor Type-erased descriptor message pointer
-  /// @param publisher_gid The GID of the publisher for peer-to-peer channels
-  /// @return New BufferImplBase instance reconstructed from descriptor
-  virtual std::unique_ptr<BufferImplBase<T>> from_descriptor(
-    const std::shared_ptr<void> & descriptor,
-    const rmw_gid_t & publisher_gid) const = 0;
 };
 
 }  // namespace rosidl

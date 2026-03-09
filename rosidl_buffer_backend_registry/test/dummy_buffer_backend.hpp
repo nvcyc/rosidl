@@ -63,21 +63,6 @@ public:
     return cloned;
   }
 
-  std::shared_ptr<void> create_descriptor(const rmw_gid_t & subscriber_gid) const override
-  {
-    (void)subscriber_gid;
-    return nullptr;
-  }
-
-  std::unique_ptr<rosidl::BufferImplBase<T>> from_descriptor(
-    const std::shared_ptr<void> & descriptor,
-    const rmw_gid_t & publisher_gid) const override
-  {
-    (void)descriptor;
-    (void)publisher_gid;
-    return nullptr;
-  }
-
   std::vector<T> & get_data() {return data_;}
   const std::vector<T> & get_data() const {return data_;}
 

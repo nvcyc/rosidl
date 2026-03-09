@@ -13,7 +13,6 @@ endif()
 
 # Find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rmw REQUIRED)
 
 add_library(${PROJECT_NAME}
   src/c_helpers.cpp
@@ -22,10 +21,6 @@ add_library(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
-)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC
-  rmw::rmw
 )
 
 # Install headers
@@ -46,7 +41,6 @@ install(
 
 # Export modern CMake targets
 ament_export_targets(${PROJECT_NAME})
-ament_export_dependencies(rmw)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
