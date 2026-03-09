@@ -47,8 +47,6 @@ public:
   }
 
   size_t size() const override {return data_.size();}
-  void resize(size_t n) override {data_.resize(n);}
-  void clear() override {data_.clear();}
 
   const void * get_backend_handle() const override
   {
@@ -62,14 +60,16 @@ public:
     return cpu;
   }
 
-  std::string get_descriptor_type_name() const override
+  std::unique_ptr<rosidl::BufferImplBase<T>> clone() const override
   {
-    return "dummy_descriptor";
+    auto cloned = std::make_unique<DummyBufferImpl<T>>();
+    cloned->data_ = data_;
+    cloned->marker_ = marker_;
+    return cloned;
   }
 
   std::shared_ptr<void> create_descriptor(const rmw_gid_t & subscriber_gid) const override
   {
-    // Return nullptr - not used in these tests
     (void)subscriber_gid;
     return nullptr;
   }
@@ -78,18 +78,9 @@ public:
     const std::shared_ptr<void> & descriptor,
     const rmw_gid_t & publisher_gid) const override
   {
-    // Return nullptr - not used in these tests
     (void)descriptor;
     (void)publisher_gid;
     return nullptr;
-  }
-
-  std::unique_ptr<rosidl::BufferImplBase<T>> clone() const override
-  {
-    auto cloned = std::make_unique<DummyBufferImpl<T>>();
-    cloned->data_ = data_;
-    cloned->marker_ = marker_;
-    return cloned;
   }
 
   std::vector<T> & get_data() {return data_;}

@@ -17,7 +17,6 @@
 
 #include <memory>
 #include <stdexcept>
-#include <string>
 #include <vector>
 
 #include "rosidl_buffer/buffer_impl_base.hpp"
@@ -39,12 +38,9 @@ public:
   /// Get const reference to underlying std::vector.
   const std::vector<T> & get_storage() const {return storage_;}
 
-  // BufferImplBase interface implementation
+  // ========== BufferImplBase overrides ==========
+
   size_t size() const override {return storage_.size();}
-
-  void resize(size_t n) override {storage_.resize(n);}
-
-  void clear() override {storage_.clear();}
 
   const void * get_backend_handle() const override
   {
@@ -58,18 +54,17 @@ public:
     return copy;
   }
 
-  // ========== Descriptor-based Serialization Interface ==========
-  // CPU backend doesn't use descriptors - serializes directly as std::vector
-
-  std::string get_descriptor_type_name() const override
+  std::unique_ptr<BufferImplBase<T>> clone() const override
   {
-    // Not used for CPU backend
-    return "std::vector";
+    auto copy = std::make_unique<CpuBufferImpl<T>>();
+    copy->storage_ = storage_;
+    return copy;
   }
+
+  // CPU backend doesn't use descriptors - serializes directly as std::vector
 
   std::shared_ptr<void> create_descriptor(const rmw_gid_t & subscriber_gid) const override
   {
-    // Not used for CPU backend - serializes directly as std::vector
     (void)subscriber_gid;
     throw std::runtime_error("CPU backend does not use descriptors");
   }
@@ -78,17 +73,9 @@ public:
     const std::shared_ptr<void> & descriptor,
     const rmw_gid_t & publisher_gid) const override
   {
-    // Not used for CPU backend - deserializes directly as std::vector
     (void)descriptor;
     (void)publisher_gid;
     throw std::runtime_error("CPU backend does not use descriptors");
-  }
-
-  std::unique_ptr<BufferImplBase<T>> clone() const override
-  {
-    auto copy = std::make_unique<CpuBufferImpl<T>>();
-    copy->storage_ = storage_;  // Deep copy of vector
-    return copy;
   }
 
 private:

@@ -359,23 +359,23 @@ TEST(TestBuffer, with_algorithms) {
 // Test CpuBufferImpl directly
 TEST(TestCpuBufferImpl, basic_operations) {
   CpuBufferImpl<int> impl;
-  EXPECT_EQ(0u, impl.size());
+  EXPECT_EQ(0u, impl.get_storage().size());
 
-  impl.resize(5);
-  EXPECT_EQ(5u, impl.size());
+  impl.get_storage().resize(5);
+  EXPECT_EQ(5u, impl.get_storage().size());
 
   auto & storage = impl.get_storage();
   storage[0] = 100;
   EXPECT_EQ(100, storage[0]);
 
-  impl.clear();
-  EXPECT_EQ(0u, impl.size());
+  impl.get_storage().clear();
+  EXPECT_EQ(0u, impl.get_storage().size());
 }
 
 // Test CpuBufferImpl::to_cpu()
 TEST(TestCpuBufferImpl, to_cpu) {
   CpuBufferImpl<int> impl;
-  impl.resize(3);
+  impl.get_storage().resize(3);
   auto & storage = impl.get_storage();
   storage[0] = 1;
   storage[1] = 2;
@@ -383,9 +383,9 @@ TEST(TestCpuBufferImpl, to_cpu) {
 
   auto cpu_copy = impl.to_cpu();
   ASSERT_NE(nullptr, cpu_copy);
-  EXPECT_EQ(3u, cpu_copy->size());
 
   auto * cpu_impl = static_cast<CpuBufferImpl<int> *>(cpu_copy.get());
+  EXPECT_EQ(3u, cpu_impl->get_storage().size());
   EXPECT_EQ(1, cpu_impl->get_storage()[0]);
   EXPECT_EQ(2, cpu_impl->get_storage()[1]);
   EXPECT_EQ(3, cpu_impl->get_storage()[2]);
@@ -398,7 +398,7 @@ TEST(TestCpuBufferImpl, backend_handle) {
   // Empty buffer should return nullptr
   EXPECT_EQ(nullptr, impl.get_backend_handle());
 
-  impl.resize(5);
+  impl.get_storage().resize(5);
   const void * handle = impl.get_backend_handle();
   ASSERT_NE(nullptr, handle);
 
@@ -433,7 +433,7 @@ TEST(TestBuffer, set_impl) {
 
   // Create a custom impl
   auto custom_impl = std::make_unique<CpuBufferImpl<int>>();
-  custom_impl->resize(3);
+  custom_impl->get_storage().resize(3);
   custom_impl->get_storage()[0] = 100;
   custom_impl->get_storage()[1] = 200;
   custom_impl->get_storage()[2] = 300;

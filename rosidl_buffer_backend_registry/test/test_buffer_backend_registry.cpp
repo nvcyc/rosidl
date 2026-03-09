@@ -63,9 +63,9 @@ TEST(TestDummyBufferImpl, to_cpu_conversion) {
 
   auto cpu_impl = dummy.to_cpu();
   ASSERT_NE(nullptr, cpu_impl);
-  EXPECT_EQ(4u, cpu_impl->size());
 
   auto * cpu = static_cast<rosidl::CpuBufferImpl<int> *>(cpu_impl.get());
+  EXPECT_EQ(4u, cpu->get_storage().size());
   EXPECT_EQ(10, cpu->get_storage()[0]);
   EXPECT_EQ(20, cpu->get_storage()[1]);
   EXPECT_EQ(30, cpu->get_storage()[2]);
@@ -88,7 +88,7 @@ TEST(TestDummyBufferImpl, backend_handle) {
   // Empty should return nullptr
   EXPECT_EQ(nullptr, impl.get_backend_handle());
 
-  impl.resize(3);
+  impl.get_data().resize(3);
   impl.get_data()[0] = 100;
 
   const void * handle = impl.get_backend_handle();

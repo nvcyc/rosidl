@@ -17,7 +17,6 @@
 
 #include <cstddef>
 #include <memory>
-#include <string>
 
 // Forward declaration to avoid dependency on rmw
 struct rmw_gid_s;
@@ -27,7 +26,11 @@ namespace rosidl
 {
 
 /// Abstract base class for all buffer implementations (CPU, CUDA, ROCm, etc.).
-/// Provides a common interface for buffer operations and serialization.
+///
+/// This base keeps only what the Buffer<T> pimpl and the serialization layer
+/// need.  Backend-specific APIs (element access, resize, iterators, etc.) are
+/// the responsibility of each concrete implementation; the CPU path goes
+/// through CpuBufferImpl directly.
 template<typename T>
 class BufferImplBase
 {
@@ -37,14 +40,8 @@ public:
   // ========== Core Buffer Operations ==========
 
   /// Get the number of elements in the buffer.
+  /// Required by the serialization layer for all backends.
   virtual size_t size() const = 0;
-
-  /// Resize the buffer to hold n elements.
-  /// @param n Number of elements
-  virtual void resize(size_t n) = 0;
-
-  /// Clear all elements from the buffer.
-  virtual void clear() = 0;
 
   /// Get a backend-specific handle to the underlying buffer.
   /// For CPU buffers, this returns a pointer to the data.
@@ -57,12 +54,11 @@ public:
   /// @return New BufferImplBase instance on CPU
   virtual std::unique_ptr<BufferImplBase<T>> to_cpu() const = 0;
 
-  // ========== Descriptor-based Serialization Interface ==========
+  /// Create a deep copy of this buffer.
+  /// @return New BufferImplBase instance with copied data
+  virtual std::unique_ptr<BufferImplBase<T>> clone() const = 0;
 
-  /// Get the descriptor message type name for this backend.
-  /// For example, "isaac_ros_cuda_buffer_msgs::msg::CudaBufferDescriptor"
-  /// @return Fully qualified descriptor type name
-  virtual std::string get_descriptor_type_name() const = 0;
+  // ========== Descriptor-based Serialization Interface ==========
 
   /// Create a descriptor message from this buffer implementation.
   /// The descriptor contains metadata needed to serialize/deserialize the buffer.
@@ -77,10 +73,6 @@ public:
   virtual std::unique_ptr<BufferImplBase<T>> from_descriptor(
     const std::shared_ptr<void> & descriptor,
     const rmw_gid_t & publisher_gid) const = 0;
-
-  /// Create a deep copy of this buffer.
-  /// @return New BufferImplBase instance with copied data
-  virtual std::unique_ptr<BufferImplBase<T>> clone() const = 0;
 };
 
 }  // namespace rosidl

@@ -64,7 +64,7 @@ public:
   : backend_type_("cpu"),
     impl_(std::make_unique<CpuBufferImpl<T>>())
   {
-    impl_->resize(count);
+    get_cpu_impl()->get_storage().resize(count);
   }
 
   /// Construct with initial size and value (CPU backend)
@@ -257,25 +257,30 @@ public:
   iterator end()
   {
     throw_if_not_cpu_backend();
-    return get_cpu_impl()->get_storage().data() + size();
+    auto & s = get_cpu_impl()->get_storage();
+    return s.data() + s.size();
   }
 
   const_iterator end() const
   {
     throw_if_not_cpu_backend();
-    return get_cpu_impl()->get_storage().data() + size();
+    auto & s = get_cpu_impl()->get_storage();
+    return s.data() + s.size();
   }
 
   const_iterator cend() const
   {
     throw_if_not_cpu_backend();
-    return get_cpu_impl()->get_storage().data() + size();
+    auto & s = get_cpu_impl()->get_storage();
+    return s.data() + s.size();
   }
 
-  // ========== Capacity (All backends) ==========
+  // ========== Capacity ==========
 
+  /// Works for all backends (delegates to BufferImplBase::size()).
   bool empty() const {return !impl_ || impl_->size() == 0;}
 
+  /// Works for all backends (delegates to BufferImplBase::size()).
   size_t size() const {return impl_ ? impl_->size() : 0;}
 
   void reserve(size_t new_cap)
@@ -296,25 +301,22 @@ public:
     get_cpu_impl()->get_storage().shrink_to_fit();
   }
 
-  // ========== Modifiers (Various backend support) ==========
+  // ========== Modifiers (CPU only) ==========
 
-  void clear() {impl_->clear();}
+  void clear()
+  {
+    throw_if_not_cpu_backend();
+    get_cpu_impl()->get_storage().clear();
+  }
 
   void resize(size_t n)
   {
-    if (!impl_) {
-      impl_ = std::make_unique<CpuBufferImpl<T>>();
-      backend_type_ = "cpu";
-    }
-    impl_->resize(n);
+    throw_if_not_cpu_backend();
+    get_cpu_impl()->get_storage().resize(n);
   }
 
   void resize(size_t n, const T & value)
   {
-    if (!impl_) {
-      impl_ = std::make_unique<CpuBufferImpl<T>>();
-      backend_type_ = "cpu";
-    }
     throw_if_not_cpu_backend();
     get_cpu_impl()->get_storage().resize(n, value);
   }
