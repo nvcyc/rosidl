@@ -90,11 +90,6 @@ public:
     return "dummy";
   }
 
-  std::string get_descriptor_type_name() const override
-  {
-    return "dummy_descriptor";
-  }
-
   std::shared_ptr<void> create_descriptor_with_endpoint(
     const std::shared_ptr<void> & impl,
     const rmw_topic_endpoint_info_t & endpoint_info) const override

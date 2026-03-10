@@ -50,10 +50,6 @@ public:
     return "";
   }
 
-  /// Get the descriptor message type name (e.g., "cpu_buffer_msgs::msg::CpuBufferDescriptor")
-  /// This is used by the serialization layer to find the appropriate type support.
-  virtual std::string get_descriptor_type_name() const = 0;
-
   /// Create a descriptor message with endpoint awareness.
   /// @param impl Type-erased BufferImplBase pointer.
   /// @param endpoint_info Endpoint info for the peer.

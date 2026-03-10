@@ -46,11 +46,10 @@ void initialize_buffer_backends()
 
     std::string backend_type = backend->get_backend_type();
     RCUTILS_LOG_INFO_NAMED(
-      kLoggerName, "Processing backend '%s' (descriptor type: %s)",
-      backend_name.c_str(), backend->get_descriptor_type_name().c_str());
+      kLoggerName, "Processing backend '%s' (type: %s)",
+      backend_name.c_str(), backend_type.c_str());
 
     rosidl_typesupport_fastrtps_cpp::BackendDescriptorOps ops;
-    ops.descriptor_type_name = backend->get_descriptor_type_name();
 
     auto backend_ptr = backend;
     ops.create_descriptor_with_endpoint = [backend_ptr](
