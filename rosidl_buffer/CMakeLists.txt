@@ -14,7 +14,7 @@ endif()
 # Find dependencies
 find_package(ament_cmake REQUIRED)
 
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   src/c_helpers.cpp
 )
 
