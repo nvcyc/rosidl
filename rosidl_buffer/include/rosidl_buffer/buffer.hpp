@@ -301,6 +301,25 @@ public:
 
   // ========== Modifiers (CPU only) ==========
 
+  void assign(size_t count, const T & value)
+  {
+    throw_if_not_cpu_backend();
+    get_cpu_impl()->get_storage().assign(count, value);
+  }
+
+  template<typename InputIt>
+  void assign(InputIt first, InputIt last)
+  {
+    throw_if_not_cpu_backend();
+    get_cpu_impl()->get_storage().assign(first, last);
+  }
+
+  void assign(std::initializer_list<T> ilist)
+  {
+    throw_if_not_cpu_backend();
+    get_cpu_impl()->get_storage().assign(ilist);
+  }
+
   void clear()
   {
     throw_if_not_cpu_backend();

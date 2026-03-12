@@ -246,6 +246,52 @@ TEST(TestBuffer, emplace_back) {
   EXPECT_EQ(0x00, buffer[1]);
 }
 
+// Test assign with count and value
+TEST(TestBuffer, assign_count_value) {
+  Buffer<uint8_t> buffer;
+  buffer.assign(5, 42);
+  EXPECT_EQ(5u, buffer.size());
+  for (size_t i = 0; i < buffer.size(); ++i) {
+    EXPECT_EQ(42, buffer[i]);
+  }
+
+  buffer.assign(3, 7);
+  EXPECT_EQ(3u, buffer.size());
+  for (size_t i = 0; i < buffer.size(); ++i) {
+    EXPECT_EQ(7, buffer[i]);
+  }
+}
+
+// Test assign with iterator range
+TEST(TestBuffer, assign_iterator_range) {
+  std::vector<uint8_t> source = {10, 20, 30, 40, 50};
+  Buffer<uint8_t> buffer;
+  buffer.assign(source.begin(), source.end());
+
+  EXPECT_EQ(5u, buffer.size());
+  for (size_t i = 0; i < source.size(); ++i) {
+    EXPECT_EQ(source[i], buffer[i]);
+  }
+
+  uint8_t arr[] = {1, 2, 3};
+  buffer.assign(std::begin(arr), std::end(arr));
+  EXPECT_EQ(3u, buffer.size());
+  EXPECT_EQ(1, buffer[0]);
+  EXPECT_EQ(2, buffer[1]);
+  EXPECT_EQ(3, buffer[2]);
+}
+
+// Test assign with initializer list
+TEST(TestBuffer, assign_initializer_list) {
+  Buffer<uint8_t> buffer(10, 0);
+  buffer.assign({5, 10, 15});
+
+  EXPECT_EQ(3u, buffer.size());
+  EXPECT_EQ(5, buffer[0]);
+  EXPECT_EQ(10, buffer[1]);
+  EXPECT_EQ(15, buffer[2]);
+}
+
 // Test clear
 TEST(TestBuffer, clear) {
   Buffer<uint8_t> buffer(10, 42);
@@ -551,6 +597,10 @@ TEST(TestBufferNonCpu, modifiers_throw) {
   auto impl = std::make_unique<NonCpuBufferImpl<uint8_t>>(4);
   Buffer<uint8_t> buffer(std::move(impl));
 
+  EXPECT_THROW(buffer.assign(3, 0), std::runtime_error);
+  EXPECT_THROW(buffer.assign({1, 2}), std::runtime_error);
+  std::vector<uint8_t> v = {1};
+  EXPECT_THROW(buffer.assign(v.begin(), v.end()), std::runtime_error);
   EXPECT_THROW(buffer.resize(10), std::runtime_error);
   EXPECT_THROW(buffer.resize(10, 0), std::runtime_error);
   EXPECT_THROW(buffer.clear(), std::runtime_error);
