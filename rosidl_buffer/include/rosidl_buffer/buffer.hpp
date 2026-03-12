@@ -378,6 +378,24 @@ public:
     }
   }
 
+  // ========== Comparison Operators ==========
+
+  bool operator==(const Buffer & other) const
+  {
+    if (size() != other.size()) {
+      return false;
+    }
+    if (backend_type_ == "cpu" && other.backend_type_ == "cpu") {
+      return get_cpu_impl()->get_storage() == other.get_cpu_impl()->get_storage();
+    }
+    return to_vector() == other.to_vector();
+  }
+
+  bool operator!=(const Buffer & other) const
+  {
+    return !(*this == other);
+  }
+
   // ========== Backend Management ==========
 
   /// Get the backend type identifier (e.g., "cpu", "cuda").
