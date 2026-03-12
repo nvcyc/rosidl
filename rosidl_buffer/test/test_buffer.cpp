@@ -15,8 +15,10 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "rosidl_buffer/buffer.hpp"
@@ -29,7 +31,7 @@ using rosidl::CpuBufferImpl;
 
 // Test default construction
 TEST(TestBuffer, default_construction) {
-  Buffer<int> buffer;
+  Buffer<uint8_t> buffer;
   EXPECT_EQ(0u, buffer.size());
   EXPECT_TRUE(buffer.empty());
   EXPECT_EQ("cpu", buffer.get_backend_type());
@@ -37,7 +39,7 @@ TEST(TestBuffer, default_construction) {
 
 // Test construction with size
 TEST(TestBuffer, sized_construction) {
-  Buffer<int> buffer(10);
+  Buffer<uint8_t> buffer(10);
   EXPECT_EQ(10u, buffer.size());
   EXPECT_FALSE(buffer.empty());
   EXPECT_EQ("cpu", buffer.get_backend_type());
@@ -45,7 +47,7 @@ TEST(TestBuffer, sized_construction) {
 
 // Test construction with size and value
 TEST(TestBuffer, sized_value_construction) {
-  Buffer<int> buffer(5, 42);
+  Buffer<uint8_t> buffer(5, 42);
   EXPECT_EQ(5u, buffer.size());
   for (size_t i = 0; i < buffer.size(); ++i) {
     EXPECT_EQ(42, buffer[i]);
@@ -54,11 +56,12 @@ TEST(TestBuffer, sized_value_construction) {
 
 // Test copy construction
 TEST(TestBuffer, copy_construction) {
-  Buffer<int> buffer1(3, 100);
-  Buffer<int> buffer2(buffer1);
+  Buffer<uint8_t> buffer1(3, 100);
+  Buffer<uint8_t> buffer2(buffer1);
 
   EXPECT_EQ(buffer1.size(), buffer2.size());
   EXPECT_EQ(buffer1.get_backend_type(), buffer2.get_backend_type());
+  EXPECT_NE(buffer1.data(), buffer2.data());
   for (size_t i = 0; i < buffer1.size(); ++i) {
     EXPECT_EQ(buffer1[i], buffer2[i]);
   }
@@ -66,8 +69,8 @@ TEST(TestBuffer, copy_construction) {
 
 // Test move construction
 TEST(TestBuffer, move_construction) {
-  Buffer<int> buffer1(3, 100);
-  Buffer<int> buffer2(std::move(buffer1));
+  Buffer<uint8_t> buffer1(3, 100);
+  Buffer<uint8_t> buffer2(std::move(buffer1));
 
   EXPECT_EQ(3u, buffer2.size());
   EXPECT_EQ("cpu", buffer2.get_backend_type());
@@ -75,11 +78,12 @@ TEST(TestBuffer, move_construction) {
 
 // Test copy assignment
 TEST(TestBuffer, copy_assignment) {
-  Buffer<int> buffer1(3, 100);
-  Buffer<int> buffer2;
+  Buffer<uint8_t> buffer1(3, 100);
+  Buffer<uint8_t> buffer2;
   buffer2 = buffer1;
 
   EXPECT_EQ(buffer1.size(), buffer2.size());
+  EXPECT_NE(buffer1.data(), buffer2.data());
   for (size_t i = 0; i < buffer1.size(); ++i) {
     EXPECT_EQ(buffer1[i], buffer2[i]);
   }
@@ -87,8 +91,8 @@ TEST(TestBuffer, copy_assignment) {
 
 // Test move assignment
 TEST(TestBuffer, move_assignment) {
-  Buffer<int> buffer1(3, 100);
-  Buffer<int> buffer2;
+  Buffer<uint8_t> buffer1(3, 100);
+  Buffer<uint8_t> buffer2;
   buffer2 = std::move(buffer1);
 
   EXPECT_EQ(3u, buffer2.size());
@@ -96,20 +100,20 @@ TEST(TestBuffer, move_assignment) {
 
 // Test element access via operator[]
 TEST(TestBuffer, element_access) {
-  Buffer<int> buffer(5);
+  Buffer<uint8_t> buffer(5);
   for (size_t i = 0; i < buffer.size(); ++i) {
-    buffer[i] = static_cast<int>(i * 10);
+    buffer[i] = static_cast<uint8_t>(i * 10);
   }
 
   for (size_t i = 0; i < buffer.size(); ++i) {
-    EXPECT_EQ(static_cast<int>(i * 10), buffer[i]);
+    EXPECT_EQ(static_cast<uint8_t>(i * 10), buffer[i]);
   }
 }
 
 // Test const element access
 TEST(TestBuffer, const_element_access) {
-  Buffer<int> buffer(3, 42);
-  const Buffer<int> & const_buffer = buffer;
+  Buffer<uint8_t> buffer(3, 42);
+  const Buffer<uint8_t> & const_buffer = buffer;
 
   EXPECT_EQ(42, const_buffer[0]);
   EXPECT_EQ(42, const_buffer[1]);
@@ -118,7 +122,7 @@ TEST(TestBuffer, const_element_access) {
 
 // Test at() with bounds checking
 TEST(TestBuffer, at_access) {
-  Buffer<int> buffer(3, 99);
+  Buffer<uint8_t> buffer(3, 99);
   EXPECT_EQ(99, buffer.at(0));
   EXPECT_EQ(99, buffer.at(2));
   EXPECT_THROW(buffer.at(3), std::out_of_range);
@@ -126,7 +130,7 @@ TEST(TestBuffer, at_access) {
 
 // Test front() and back()
 TEST(TestBuffer, front_back_access) {
-  Buffer<int> buffer;
+  Buffer<uint8_t> buffer;
   buffer.push_back(10);
   buffer.push_back(20);
   buffer.push_back(30);
@@ -137,8 +141,8 @@ TEST(TestBuffer, front_back_access) {
 
 // Test data() pointer access
 TEST(TestBuffer, data_access) {
-  Buffer<int> buffer(5, 7);
-  int * ptr = buffer.data();
+  Buffer<uint8_t> buffer(5, 7);
+  uint8_t * ptr = buffer.data();
   ASSERT_NE(nullptr, ptr);
   EXPECT_EQ(7, ptr[0]);
   EXPECT_EQ(7, ptr[4]);
@@ -149,7 +153,7 @@ TEST(TestBuffer, data_access) {
 
 // Test iterators
 TEST(TestBuffer, iterators) {
-  Buffer<int> buffer;
+  Buffer<uint8_t> buffer;
   buffer.push_back(1);
   buffer.push_back(2);
   buffer.push_back(3);
@@ -161,7 +165,7 @@ TEST(TestBuffer, iterators) {
   EXPECT_EQ(6, sum);
 
   // Test const iterators
-  const Buffer<int> & const_buffer = buffer;
+  const Buffer<uint8_t> & const_buffer = buffer;
   int const_sum = 0;
   for (auto it = const_buffer.begin(); it != const_buffer.end(); ++it) {
     const_sum += *it;
@@ -171,12 +175,12 @@ TEST(TestBuffer, iterators) {
 
 // Test resize
 TEST(TestBuffer, resize) {
-  Buffer<int> buffer(5, 10);
+  Buffer<uint8_t> buffer(5, 10);
   EXPECT_EQ(5u, buffer.size());
 
   buffer.resize(10);
   EXPECT_EQ(10u, buffer.size());
-  EXPECT_EQ(10, buffer[4]);  // Old values preserved
+  EXPECT_EQ(10, buffer[4]);
 
   buffer.resize(3);
   EXPECT_EQ(3u, buffer.size());
@@ -184,7 +188,7 @@ TEST(TestBuffer, resize) {
 
 // Test resize with value
 TEST(TestBuffer, resize_with_value) {
-  Buffer<int> buffer(2, 5);
+  Buffer<uint8_t> buffer(2, 5);
   buffer.resize(5, 99);
 
   EXPECT_EQ(5u, buffer.size());
@@ -196,7 +200,7 @@ TEST(TestBuffer, resize_with_value) {
 
 // Test push_back
 TEST(TestBuffer, push_back) {
-  Buffer<int> buffer;
+  Buffer<uint8_t> buffer;
   EXPECT_TRUE(buffer.empty());
 
   buffer.push_back(10);
@@ -210,17 +214,17 @@ TEST(TestBuffer, push_back) {
 
 // Test push_back with rvalue
 TEST(TestBuffer, push_back_rvalue) {
-  Buffer<std::string> buffer;
-  std::string str = "hello";
-  buffer.push_back(std::move(str));
+  Buffer<uint8_t> buffer;
+  uint8_t val = 0xAB;
+  buffer.push_back(std::move(val));
 
   EXPECT_EQ(1u, buffer.size());
-  EXPECT_EQ("hello", buffer[0]);
+  EXPECT_EQ(0xAB, buffer[0]);
 }
 
 // Test pop_back
 TEST(TestBuffer, pop_back) {
-  Buffer<int> buffer;
+  Buffer<uint8_t> buffer;
   buffer.push_back(1);
   buffer.push_back(2);
   buffer.push_back(3);
@@ -233,18 +237,18 @@ TEST(TestBuffer, pop_back) {
 
 // Test emplace_back
 TEST(TestBuffer, emplace_back) {
-  Buffer<std::string> buffer;
-  buffer.emplace_back("test");
-  buffer.emplace_back(5, 'x');  // Creates "xxxxx"
+  Buffer<uint8_t> buffer;
+  buffer.emplace_back(0xFF);
+  buffer.emplace_back(0x00);
 
   EXPECT_EQ(2u, buffer.size());
-  EXPECT_EQ("test", buffer[0]);
-  EXPECT_EQ("xxxxx", buffer[1]);
+  EXPECT_EQ(0xFF, buffer[0]);
+  EXPECT_EQ(0x00, buffer[1]);
 }
 
 // Test clear
 TEST(TestBuffer, clear) {
-  Buffer<int> buffer(10, 42);
+  Buffer<uint8_t> buffer(10, 42);
   EXPECT_EQ(10u, buffer.size());
   EXPECT_FALSE(buffer.empty());
 
@@ -255,7 +259,7 @@ TEST(TestBuffer, clear) {
 
 // Test reserve and capacity (CPU backend only)
 TEST(TestBuffer, reserve_capacity) {
-  Buffer<int> buffer;
+  Buffer<uint8_t> buffer;
   buffer.reserve(100);
 
   EXPECT_EQ(0u, buffer.size());
@@ -264,7 +268,7 @@ TEST(TestBuffer, reserve_capacity) {
 
 // Test shrink_to_fit
 TEST(TestBuffer, shrink_to_fit) {
-  Buffer<int> buffer;
+  Buffer<uint8_t> buffer;
   buffer.reserve(100);
   buffer.push_back(1);
   buffer.push_back(2);
@@ -277,76 +281,70 @@ TEST(TestBuffer, shrink_to_fit) {
 
 // Test implicit conversion to std::vector&
 TEST(TestBuffer, implicit_conversion_to_vector) {
-  Buffer<int> buffer;
+  Buffer<uint8_t> buffer;
   buffer.push_back(1);
   buffer.push_back(2);
   buffer.push_back(3);
 
-  // Implicit conversion
-  std::vector<int> & vec_ref = buffer;
+  std::vector<uint8_t> & vec_ref = buffer;
   EXPECT_EQ(3u, vec_ref.size());
   EXPECT_EQ(1, vec_ref[0]);
   EXPECT_EQ(2, vec_ref[1]);
   EXPECT_EQ(3, vec_ref[2]);
 
-  // Modify through vector reference
   vec_ref[1] = 99;
   EXPECT_EQ(99, buffer[1]);
 }
 
 // Test const implicit conversion
 TEST(TestBuffer, const_implicit_conversion) {
-  Buffer<int> buffer(3, 42);
-  const Buffer<int> & const_buffer = buffer;
+  Buffer<uint8_t> buffer(3, 42);
+  const Buffer<uint8_t> & const_buffer = buffer;
 
-  const std::vector<int> & vec_ref = const_buffer;
+  const std::vector<uint8_t> & vec_ref = const_buffer;
   EXPECT_EQ(3u, vec_ref.size());
   EXPECT_EQ(42, vec_ref[0]);
 }
 
 // Test to_vector() escape hatch
 TEST(TestBuffer, to_vector_escape_hatch) {
-  Buffer<int> buffer;
+  Buffer<uint8_t> buffer;
   buffer.push_back(10);
   buffer.push_back(20);
   buffer.push_back(30);
 
-  std::vector<int> copied = buffer.to_vector();
+  std::vector<uint8_t> copied = buffer.to_vector();
   EXPECT_EQ(buffer.size(), copied.size());
   EXPECT_EQ(10, copied[0]);
   EXPECT_EQ(20, copied[1]);
   EXPECT_EQ(30, copied[2]);
 
-  // Verify it's a copy
-  copied[0] = 999;
-  EXPECT_EQ(10, buffer[0]);  // Original unchanged
+  copied[0] = 255;
+  EXPECT_EQ(10, buffer[0]);
 }
 
 // Test backend type
 TEST(TestBuffer, backend_type) {
-  Buffer<int> buffer;
+  Buffer<uint8_t> buffer;
   EXPECT_EQ("cpu", buffer.get_backend_type());
 }
 
 // Test using Buffer with algorithms
 TEST(TestBuffer, with_algorithms) {
-  Buffer<int> buffer;
-  for (int i = 0; i < 10; ++i) {
+  Buffer<uint8_t> buffer;
+  for (uint8_t i = 0; i < 10; ++i) {
     buffer.push_back(i);
   }
 
-  // Test std::find
   auto it = std::find(buffer.begin(), buffer.end(), 5);
   ASSERT_NE(buffer.end(), it);
   EXPECT_EQ(5, *it);
 
-  // Test std::count
   buffer.push_back(5);
-  int count = std::count(buffer.begin(), buffer.end(), 5);
+  auto count = std::count(buffer.begin(), buffer.end(), 5);
   EXPECT_EQ(2, count);
 
-  // Test std::sort
-  Buffer<int> buffer2;
+  Buffer<uint8_t> buffer2;
   buffer2.push_back(3);
   buffer2.push_back(1);
   buffer2.push_back(2);
@@ -358,7 +356,7 @@ TEST(TestBuffer, with_algorithms) {
 
 // Test CpuBufferImpl directly
 TEST(TestCpuBufferImpl, basic_operations) {
-  CpuBufferImpl<int> impl;
+  CpuBufferImpl<uint8_t> impl;
   EXPECT_EQ(0u, impl.get_storage().size());
 
   impl.get_storage().resize(5);
@@ -374,7 +372,7 @@ TEST(TestCpuBufferImpl, basic_operations) {
 
 // Test CpuBufferImpl::to_cpu()
 TEST(TestCpuBufferImpl, to_cpu) {
-  CpuBufferImpl<int> impl;
+  CpuBufferImpl<uint8_t> impl;
   impl.get_storage().resize(3);
   auto & storage = impl.get_storage();
   storage[0] = 1;
@@ -384,7 +382,7 @@ TEST(TestCpuBufferImpl, to_cpu) {
   auto cpu_copy = impl.to_cpu();
   ASSERT_NE(nullptr, cpu_copy);
 
-  auto * cpu_impl = static_cast<CpuBufferImpl<int> *>(cpu_copy.get());
+  auto * cpu_impl = static_cast<CpuBufferImpl<uint8_t> *>(cpu_copy.get());
   EXPECT_EQ(3u, cpu_impl->get_storage().size());
   EXPECT_EQ(1, cpu_impl->get_storage()[0]);
   EXPECT_EQ(2, cpu_impl->get_storage()[1]);
@@ -393,12 +391,12 @@ TEST(TestCpuBufferImpl, to_cpu) {
 
 // Test CpuBufferImpl storage data pointer
 TEST(TestCpuBufferImpl, storage_data_pointer) {
-  CpuBufferImpl<int> impl;
+  CpuBufferImpl<uint8_t> impl;
 
   EXPECT_TRUE(impl.get_storage().empty());
 
   impl.get_storage().resize(5);
-  const int * data_ptr = impl.get_storage().data();
+  const uint8_t * data_ptr = impl.get_storage().data();
   ASSERT_NE(nullptr, data_ptr);
 
   impl.get_storage()[0] = 42;
@@ -407,46 +405,44 @@ TEST(TestCpuBufferImpl, storage_data_pointer) {
 
 // Test Buffer copy creates independent clone (deep copy via unique_ptr)
 TEST(TestBuffer, deep_copy_semantics) {
-  Buffer<int> buffer1;
+  Buffer<uint8_t> buffer1;
   buffer1.push_back(10);
   buffer1.push_back(20);
 
-  Buffer<int> buffer2 = buffer1;  // Deep copy via clone()
+  Buffer<uint8_t> buffer2 = buffer1;
 
-  // Verify they have the same values
   EXPECT_EQ(buffer1.size(), buffer2.size());
   EXPECT_EQ(buffer1[0], buffer2[0]);
   EXPECT_EQ(buffer1[1], buffer2[1]);
 
-  // Modify buffer2 and verify buffer1 is unchanged (independent copies)
-  buffer2[0] = 999;
-  EXPECT_EQ(10, buffer1[0]);  // Original unchanged
-  EXPECT_EQ(999, buffer2[0]);  // Copy modified
+  buffer2[0] = 255;
+  EXPECT_EQ(10, buffer1[0]);
+  EXPECT_EQ(255, buffer2[0]);
 }
 
 // Test Buffer construction from a custom impl
 TEST(TestBuffer, construct_from_impl) {
-  auto custom_impl = std::make_unique<CpuBufferImpl<int>>();
+  auto custom_impl = std::make_unique<CpuBufferImpl<uint8_t>>();
   custom_impl->get_storage().resize(3);
   custom_impl->get_storage()[0] = 100;
   custom_impl->get_storage()[1] = 200;
-  custom_impl->get_storage()[2] = 300;
+  custom_impl->get_storage()[2] = 250;
 
-  Buffer<int> buffer(std::move(custom_impl));
+  Buffer<uint8_t> buffer(std::move(custom_impl));
 
   EXPECT_EQ("cpu", buffer.get_backend_type());
   EXPECT_EQ(3u, buffer.size());
   EXPECT_EQ(100, buffer[0]);
   EXPECT_EQ(200, buffer[1]);
-  EXPECT_EQ(300, buffer[2]);
+  EXPECT_EQ(250, buffer[2]);
 }
 
 // Test that constructing a Buffer with nullptr impl throws
 TEST(TestBuffer, construct_from_null_impl_throws) {
-  EXPECT_THROW(Buffer<int>(nullptr), std::invalid_argument);
+  EXPECT_THROW(Buffer<uint8_t>(nullptr), std::invalid_argument);
 }
 
-// Test that Buffer works with complex types
+// Test that Buffer works with non-trivial types (template generality)
 TEST(TestBuffer, with_string) {
   Buffer<std::string> buffer;
   buffer.push_back("hello");
@@ -481,6 +477,119 @@ TEST(TestBuffer, with_struct)
 
   std::vector<Point> copied = buffer.to_vector();
   EXPECT_DOUBLE_EQ(3.0, copied[0].z);
+}
+
+// Minimal non-CPU implementation for testing that CPU-only operations throw.
+template<typename T>
+class NonCpuBufferImpl : public BufferImplBase<T>
+{
+public:
+  explicit NonCpuBufferImpl(size_t count)
+  : size_(count) {}
+
+  std::string get_backend_type() const override {return "non_cpu_test";}
+  size_t size() const override {return size_;}
+
+  std::unique_ptr<BufferImplBase<T>> to_cpu() const override
+  {
+    auto cpu = std::make_unique<CpuBufferImpl<T>>();
+    cpu->get_storage().resize(size_);
+    return cpu;
+  }
+
+  std::unique_ptr<BufferImplBase<T>> clone() const override
+  {
+    return std::make_unique<NonCpuBufferImpl<T>>(size_);
+  }
+
+private:
+  size_t size_;
+};
+
+TEST(TestBufferNonCpu, backend_type) {
+  auto impl = std::make_unique<NonCpuBufferImpl<uint8_t>>(4);
+  Buffer<uint8_t> buffer(std::move(impl));
+
+  EXPECT_EQ("non_cpu_test", buffer.get_backend_type());
+  EXPECT_EQ(4u, buffer.size());
+  EXPECT_FALSE(buffer.empty());
+}
+
+TEST(TestBufferNonCpu, element_access_throws) {
+  auto impl = std::make_unique<NonCpuBufferImpl<uint8_t>>(4);
+  Buffer<uint8_t> buffer(std::move(impl));
+
+  EXPECT_THROW(buffer[0], std::runtime_error);
+  EXPECT_THROW(buffer.at(0), std::runtime_error);
+  EXPECT_THROW(buffer.front(), std::runtime_error);
+  EXPECT_THROW(buffer.back(), std::runtime_error);
+  EXPECT_THROW(buffer.data(), std::runtime_error);
+}
+
+TEST(TestBufferNonCpu, const_element_access_throws) {
+  auto impl = std::make_unique<NonCpuBufferImpl<uint8_t>>(4);
+  const Buffer<uint8_t> buffer(std::move(impl));
+
+  EXPECT_THROW(buffer[0], std::runtime_error);
+  EXPECT_THROW(buffer.at(0), std::runtime_error);
+  EXPECT_THROW(buffer.front(), std::runtime_error);
+  EXPECT_THROW(buffer.back(), std::runtime_error);
+  EXPECT_THROW(buffer.data(), std::runtime_error);
+}
+
+TEST(TestBufferNonCpu, iterators_throw) {
+  auto impl = std::make_unique<NonCpuBufferImpl<uint8_t>>(4);
+  Buffer<uint8_t> buffer(std::move(impl));
+
+  EXPECT_THROW(buffer.begin(), std::runtime_error);
+  EXPECT_THROW(buffer.end(), std::runtime_error);
+  EXPECT_THROW(buffer.cbegin(), std::runtime_error);
+  EXPECT_THROW(buffer.cend(), std::runtime_error);
+}
+
+TEST(TestBufferNonCpu, modifiers_throw) {
+  auto impl = std::make_unique<NonCpuBufferImpl<uint8_t>>(4);
+  Buffer<uint8_t> buffer(std::move(impl));
+
+  EXPECT_THROW(buffer.resize(10), std::runtime_error);
+  EXPECT_THROW(buffer.resize(10, 0), std::runtime_error);
+  EXPECT_THROW(buffer.clear(), std::runtime_error);
+  EXPECT_THROW(buffer.push_back(1), std::runtime_error);
+  EXPECT_THROW(buffer.pop_back(), std::runtime_error);
+  EXPECT_THROW(buffer.emplace_back(1), std::runtime_error);
+}
+
+TEST(TestBufferNonCpu, capacity_throws) {
+  auto impl = std::make_unique<NonCpuBufferImpl<uint8_t>>(4);
+  Buffer<uint8_t> buffer(std::move(impl));
+
+  EXPECT_THROW(buffer.reserve(10), std::runtime_error);
+  EXPECT_THROW(buffer.capacity(), std::runtime_error);
+  EXPECT_THROW(buffer.shrink_to_fit(), std::runtime_error);
+}
+
+TEST(TestBufferNonCpu, implicit_conversion_throws) {
+  auto impl = std::make_unique<NonCpuBufferImpl<uint8_t>>(4);
+  Buffer<uint8_t> buffer(std::move(impl));
+
+  EXPECT_THROW(
+    {std::vector<uint8_t> & ref = buffer; (void)ref;},
+    std::runtime_error);
+
+  auto impl2 = std::make_unique<NonCpuBufferImpl<uint8_t>>(4);
+  const Buffer<uint8_t> cbuffer(std::move(impl2));
+
+  EXPECT_THROW(
+    {const std::vector<uint8_t> & ref = cbuffer; (void)ref;},
+    std::runtime_error);
+}
+
+TEST(TestBufferNonCpu, to_vector_works) {
+  auto impl = std::make_unique<NonCpuBufferImpl<uint8_t>>(3);
+  Buffer<uint8_t> buffer(std::move(impl));
+
+  std::vector<uint8_t> vec = buffer.to_vector();
+  EXPECT_EQ(3u, vec.size());
 }
 
 int main(int argc, char ** argv)
