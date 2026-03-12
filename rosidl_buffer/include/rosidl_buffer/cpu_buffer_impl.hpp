@@ -16,6 +16,7 @@
 #define ROSIDL_BUFFER__CPU_BUFFER_IMPL_HPP_
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "rosidl_buffer/buffer_impl_base.hpp"
@@ -38,6 +39,8 @@ public:
   const std::vector<T> & get_storage() const {return storage_;}
 
   // ========== BufferImplBase overrides ==========
+
+  std::string get_backend_type() const override {return "cpu";}
 
   size_t size() const override {return storage_.size();}
 

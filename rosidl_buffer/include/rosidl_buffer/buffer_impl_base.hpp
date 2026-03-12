@@ -17,6 +17,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <string>
 
 namespace rosidl
 {
@@ -33,6 +34,10 @@ class BufferImplBase
 {
 public:
   virtual ~BufferImplBase() = default;
+
+  /// Get the backend type identifier (e.g., "cpu", "cuda", "demo").
+  /// Each concrete implementation returns its own fixed identifier.
+  virtual std::string get_backend_type() const = 0;
 
   /// Get the number of elements in the buffer.
   /// Required by the serialization layer for all backends.

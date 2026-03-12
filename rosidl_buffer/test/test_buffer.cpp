@@ -424,24 +424,26 @@ TEST(TestBuffer, deep_copy_semantics) {
   EXPECT_EQ(999, buffer2[0]);  // Copy modified
 }
 
-// Test Buffer::set_impl() for backend injection
-TEST(TestBuffer, set_impl) {
-  Buffer<int> buffer;
-
-  // Create a custom impl
+// Test Buffer construction from a custom impl
+TEST(TestBuffer, construct_from_impl) {
   auto custom_impl = std::make_unique<CpuBufferImpl<int>>();
   custom_impl->get_storage().resize(3);
   custom_impl->get_storage()[0] = 100;
   custom_impl->get_storage()[1] = 200;
   custom_impl->get_storage()[2] = 300;
 
-  // Inject the impl
-  buffer.set_impl(std::move(custom_impl), "cpu");
+  Buffer<int> buffer(std::move(custom_impl));
 
+  EXPECT_EQ("cpu", buffer.get_backend_type());
   EXPECT_EQ(3u, buffer.size());
   EXPECT_EQ(100, buffer[0]);
   EXPECT_EQ(200, buffer[1]);
   EXPECT_EQ(300, buffer[2]);
+}
+
+// Test that constructing a Buffer with nullptr impl throws
+TEST(TestBuffer, construct_from_null_impl_throws) {
+  EXPECT_THROW(Buffer<int>(nullptr), std::invalid_argument);
 }
 
 // Test that Buffer works with complex types

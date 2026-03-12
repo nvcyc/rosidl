@@ -54,62 +54,65 @@ public:
 
   /// Default constructor creates CPU buffer
   Buffer()
-  : backend_type_("cpu"),
-    impl_(std::make_unique<CpuBufferImpl<T>>())
+  : impl_(std::make_unique<CpuBufferImpl<T>>())
   {
+  }
+
+  /// Construct with a backend implementation (set once at construction).
+  /// This is the only way to set a non-CPU backend; there is no post-
+  /// construction setter, which avoids race conditions with concurrent reads.
+  explicit Buffer(std::unique_ptr<BufferImplBase<T>> impl)
+  : impl_(std::move(impl))
+  {
+    if (!impl_) {
+      throw std::invalid_argument("Buffer implementation must not be null");
+    }
   }
 
   /// Construct with initial size (CPU backend)
   explicit Buffer(size_t count)
-  : backend_type_("cpu"),
-    impl_(std::make_unique<CpuBufferImpl<T>>())
+  : impl_(std::make_unique<CpuBufferImpl<T>>())
   {
     get_cpu_impl()->get_storage().resize(count);
   }
 
   /// Construct with initial size and value (CPU backend)
   Buffer(size_t count, const T & value)
-  : backend_type_("cpu"),
-    impl_(std::make_unique<CpuBufferImpl<T>>())
+  : impl_(std::make_unique<CpuBufferImpl<T>>())
   {
     get_cpu_impl()->get_storage().assign(count, value);
   }
 
   /// Construct from std::vector (copy) - for backward compatibility
   Buffer(const std::vector<T> & vec)  // NOLINT(runtime/explicit) - intentionally implicit
-  : backend_type_("cpu"),
-    impl_(std::make_unique<CpuBufferImpl<T>>())
+  : impl_(std::make_unique<CpuBufferImpl<T>>())
   {
     get_cpu_impl()->get_storage() = vec;
   }
 
   /// Construct from std::vector (move) - for backward compatibility
   Buffer(std::vector<T> && vec)  // NOLINT(runtime/explicit) - intentionally implicit
-  : backend_type_("cpu"),
-    impl_(std::make_unique<CpuBufferImpl<T>>())
+  : impl_(std::make_unique<CpuBufferImpl<T>>())
   {
     get_cpu_impl()->get_storage() = std::move(vec);
   }
 
   /// Construct from initializer list - for backward compatibility
   Buffer(std::initializer_list<T> init)
-  : backend_type_("cpu"),
-    impl_(std::make_unique<CpuBufferImpl<T>>())
+  : impl_(std::make_unique<CpuBufferImpl<T>>())
   {
     get_cpu_impl()->get_storage() = init;
   }
 
   /// Copy constructor (deep copy via clone())
   Buffer(const Buffer & other)
-  : backend_type_(other.backend_type_),
-    impl_(other.impl_ ? other.impl_->clone() : nullptr)
+  : impl_(other.impl_ ? other.impl_->clone() : nullptr)
   {
   }
 
   /// Move constructor
   Buffer(Buffer && other) noexcept
-  : backend_type_(std::move(other.backend_type_)),
-    impl_(std::move(other.impl_))
+  : impl_(std::move(other.impl_))
   {
   }
 
@@ -117,7 +120,6 @@ public:
   Buffer & operator=(const Buffer & other)
   {
     if (this != &other) {
-      backend_type_ = other.backend_type_;
       impl_ = other.impl_ ? other.impl_->clone() : nullptr;
     }
     return *this;
@@ -127,7 +129,6 @@ public:
   Buffer & operator=(Buffer && other) noexcept
   {
     if (this != &other) {
-      backend_type_ = std::move(other.backend_type_);
       impl_ = std::move(other.impl_);
     }
     return *this;
@@ -137,7 +138,6 @@ public:
   /// This must come before vector assignment to resolve ambiguity with {{...}} syntax
   Buffer & operator=(std::initializer_list<T> init)
   {
-    backend_type_ = "cpu";
     impl_ = std::make_unique<CpuBufferImpl<T>>();
     get_cpu_impl()->get_storage() = init;
     return *this;
@@ -149,7 +149,6 @@ public:
     typename std::enable_if<std::is_same<U, std::vector<T>>::value, int>::type = 0>
   Buffer & operator=(const U & vec)
   {
-    backend_type_ = "cpu";
     impl_ = std::make_unique<CpuBufferImpl<T>>();
     get_cpu_impl()->get_storage() = vec;
     return *this;
@@ -161,7 +160,6 @@ public:
     typename std::enable_if<std::is_same<U, std::vector<T>>::value, int>::type = 0>
   Buffer & operator=(U && vec)
   {
-    backend_type_ = "cpu";
     impl_ = std::make_unique<CpuBufferImpl<T>>();
     get_cpu_impl()->get_storage() = std::move(vec);
     return *this;
@@ -368,10 +366,9 @@ public:
   /// @return A std::vector containing a copy of the buffer data.
   std::vector<T> to_vector() const
   {
-    if (backend_type_ == "cpu") {
+    if (get_backend_type() == "cpu") {
       return get_cpu_impl()->get_storage();
     } else {
-      // Call backend's to_cpu() and extract vector
       auto cpu_impl_ptr = impl_->to_cpu();
       auto * cpu_impl = static_cast<CpuBufferImpl<T> *>(cpu_impl_ptr.get());
       return cpu_impl->get_storage();
@@ -385,7 +382,7 @@ public:
     if (size() != other.size()) {
       return false;
     }
-    if (backend_type_ == "cpu" && other.backend_type_ == "cpu") {
+    if (get_backend_type() == "cpu" && other.get_backend_type() == "cpu") {
       return get_cpu_impl()->get_storage() == other.get_cpu_impl()->get_storage();
     }
     return to_vector() == other.to_vector();
@@ -399,19 +396,11 @@ public:
   // ========== Backend Management ==========
 
   /// Get the backend type identifier (e.g., "cpu", "cuda").
-  std::string get_backend_type() const {return backend_type_;}
-
-  /// Set buffer implementation (for backend libraries).
-  /// This allows vendor-specific backend libraries to inject their
-  /// implementations.
-  /// @param impl Backend implementation instance.
-  /// @param backend_type Backend identifier string.
-  void set_impl(
-    std::unique_ptr<BufferImplBase<T>> impl,
-    const std::string & backend_type)
+  /// Delegates to the underlying implementation — the impl is the single
+  /// source of truth for its own backend type.
+  std::string get_backend_type() const
   {
-    impl_ = std::move(impl);
-    backend_type_ = backend_type;
+    return impl_ ? impl_->get_backend_type() : "cpu";
   }
 
   /// Get the implementation pointer (for serialization) - returns raw pointer
@@ -422,16 +411,17 @@ public:
   /// @throws std::runtime_error if backend is not CPU.
   void throw_if_not_cpu_backend() const
   {
-    if (backend_type_ != "cpu") {
+    const std::string bt = get_backend_type();
+    if (bt != "cpu") {
       throw std::runtime_error(
-              "Operation requires CPU backend. Current backend: " + backend_type_ +
+              "Operation requires CPU backend. Current backend: " + bt +
               ". Use to_vector() for explicit conversion to CPU.");
     }
   }
 
 private:
-  std::string backend_type_;  ///< Backend identifier ("cpu", "cuda", etc.)
-  /// Unique pointer for proper ownership and value semantics
+  /// Unique pointer for proper ownership and value semantics.
+  /// The implementation is the sole source of truth for the backend type.
   std::unique_ptr<BufferImplBase<T>> impl_;
 
   /// Get CPU implementation (assumes throw_if_not_cpu_backend() was called)

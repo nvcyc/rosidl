@@ -17,6 +17,7 @@
 
 #include <cstring>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "rosidl_buffer_backend/buffer_backend.hpp"
@@ -45,6 +46,8 @@ public:
   {
     data_.resize(size);
   }
+
+  std::string get_backend_type() const override {return "dummy";}
 
   size_t size() const override {return data_.size();}
 
