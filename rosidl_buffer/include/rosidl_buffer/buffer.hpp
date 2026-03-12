@@ -320,6 +320,52 @@ public:
     get_cpu_impl()->get_storage().assign(ilist);
   }
 
+  iterator insert(const_iterator pos, const T & value)
+  {
+    throw_if_not_cpu_backend();
+    auto & s = get_cpu_impl()->get_storage();
+    auto offset = pos - s.data();
+    auto it = s.insert(s.begin() + offset, value);
+    return s.data() + (it - s.begin());
+  }
+
+  iterator insert(const_iterator pos, T && value)
+  {
+    throw_if_not_cpu_backend();
+    auto & s = get_cpu_impl()->get_storage();
+    auto offset = pos - s.data();
+    auto it = s.insert(s.begin() + offset, std::move(value));
+    return s.data() + (it - s.begin());
+  }
+
+  iterator insert(const_iterator pos, size_t count, const T & value)
+  {
+    throw_if_not_cpu_backend();
+    auto & s = get_cpu_impl()->get_storage();
+    auto offset = pos - s.data();
+    auto it = s.insert(s.begin() + offset, count, value);
+    return s.data() + (it - s.begin());
+  }
+
+  template<typename InputIt>
+  iterator insert(const_iterator pos, InputIt first, InputIt last)
+  {
+    throw_if_not_cpu_backend();
+    auto & s = get_cpu_impl()->get_storage();
+    auto offset = pos - s.data();
+    auto it = s.insert(s.begin() + offset, first, last);
+    return s.data() + (it - s.begin());
+  }
+
+  iterator insert(const_iterator pos, std::initializer_list<T> ilist)
+  {
+    throw_if_not_cpu_backend();
+    auto & s = get_cpu_impl()->get_storage();
+    auto offset = pos - s.data();
+    auto it = s.insert(s.begin() + offset, ilist);
+    return s.data() + (it - s.begin());
+  }
+
   void clear()
   {
     throw_if_not_cpu_backend();
