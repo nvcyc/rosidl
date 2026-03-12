@@ -441,6 +441,35 @@ private:
   }
 };
 
+/// Free-function comparison: std::vector<T> == Buffer<T>
+/// Needed because template argument deduction does not consider implicit conversions.
+template<typename T, typename Allocator>
+bool operator==(const std::vector<T, Allocator> & lhs, const Buffer<T, Allocator> & rhs)
+{
+  if (rhs.get_backend_type() == "cpu") {
+    return lhs == static_cast<const std::vector<T, Allocator> &>(rhs);
+  }
+  return lhs == rhs.to_vector();
+}
+
+template<typename T, typename Allocator>
+bool operator==(const Buffer<T, Allocator> & lhs, const std::vector<T, Allocator> & rhs)
+{
+  return rhs == lhs;
+}
+
+template<typename T, typename Allocator>
+bool operator!=(const std::vector<T, Allocator> & lhs, const Buffer<T, Allocator> & rhs)
+{
+  return !(lhs == rhs);
+}
+
+template<typename T, typename Allocator>
+bool operator!=(const Buffer<T, Allocator> & lhs, const std::vector<T, Allocator> & rhs)
+{
+  return !(lhs == rhs);
+}
+
 }  // namespace rosidl
 
 #endif  // ROSIDL_BUFFER__BUFFER_HPP_
