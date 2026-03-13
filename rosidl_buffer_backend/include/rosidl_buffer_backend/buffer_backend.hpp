@@ -30,18 +30,12 @@ namespace rosidl
 {
 
 /// Abstract interface for vendor-specific buffer backend implementations.
-/// Backends must implement all 8 methods: 4 serialization modes + 4 deserialization modes.
-///
-/// This interface uses type erasure (void*) since it must work across different
-/// element types (uint8_t, float, etc.) at the plugin boundary.
 class BufferBackend
 {
 public:
   virtual ~BufferBackend() = default;
 
-  // ========== Descriptor Message Support (Serialization-Technology Independent) ==========
-
-  /// Get the backend type name (e.g., "cuda", "rocm", "vulkan")
+  /// Get the backend type name
   virtual std::string get_backend_type() const = 0;
 
   /// Get the backend aux info string
@@ -57,7 +51,7 @@ public:
   /// @return Type-erased descriptor message, or nullptr if the backend cannot
   ///         handle this endpoint (e.g., the peer does not support this backend).
   ///         Returning nullptr signals the serialization layer to fall back to
-  ///         CPU-based std::vector serialization.
+  ///         CPU-based serialization.
   virtual std::shared_ptr<void> create_descriptor_with_endpoint(
     const std::shared_ptr<void> & impl,
     const rmw_topic_endpoint_info_t & endpoint_info) const = 0;
