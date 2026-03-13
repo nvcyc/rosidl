@@ -64,6 +64,7 @@ TEST(TestBuffer, copy_construction) {
   EXPECT_NE(buffer1.data(), buffer2.data());
   for (size_t i = 0; i < buffer1.size(); ++i) {
     EXPECT_EQ(buffer1[i], buffer2[i]);
+    EXPECT_NE(&buffer1[i], &buffer2[i]);
   }
 }
 
@@ -86,6 +87,7 @@ TEST(TestBuffer, copy_assignment) {
   EXPECT_NE(buffer1.data(), buffer2.data());
   for (size_t i = 0; i < buffer1.size(); ++i) {
     EXPECT_EQ(buffer1[i], buffer2[i]);
+    EXPECT_NE(&buffer1[i], &buffer2[i]);
   }
 }
 
