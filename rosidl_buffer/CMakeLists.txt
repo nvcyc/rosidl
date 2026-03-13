@@ -54,6 +54,11 @@ if(BUILD_TESTING)
   if(TARGET test_buffer)
     target_link_libraries(test_buffer ${PROJECT_NAME})
   endif()
+
+  ament_add_gtest(test_c_helpers test/test_c_helpers.cpp)
+  if(TARGET test_c_helpers)
+    target_link_libraries(test_c_helpers ${PROJECT_NAME})
+  endif()
 endif()
 
 ament_package()
