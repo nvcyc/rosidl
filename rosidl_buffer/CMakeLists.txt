@@ -23,6 +23,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE "ROSIDL_BUFFER_BUILDING_DLL")
+
 # Install headers
 install(
   DIRECTORY include/
