@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
+r"""
 rosidl_buffer - Python bindings for ROS 2 native buffer feature.
 
 Provides a Buffer type that wraps rosidl::Buffer<uint8_t> and
@@ -120,7 +120,7 @@ class Buffer(metaclass=BufferMeta):
 
     @property
     def is_cpu(self):
-        """True if the buffer is backed by CPU memory."""
+        """Check whether the buffer is backed by CPU memory."""
         return self.backend_type == 'cpu'
 
     # ------------------------------------------------------------------

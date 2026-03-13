@@ -56,4 +56,3 @@ extern "C"
 #endif
 
 #endif  // ROSIDL_BUFFER_BACKEND_REGISTRY__VISIBILITY_CONTROL_H_
-

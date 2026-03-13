@@ -130,4 +130,3 @@ private:
 }  // namespace rosidl_buffer_backend_registry
 
 #endif  // ROSIDL_BUFFER_BACKEND_REGISTRY__BUFFER_BACKEND_REGISTRY_HPP_
-

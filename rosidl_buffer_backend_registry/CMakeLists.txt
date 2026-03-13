@@ -64,11 +64,11 @@ ament_export_dependencies(rosidl_buffer_backend rmw rosidl_runtime_cpp rosidl_ty
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
-  
+
   find_package(ament_cmake_gtest REQUIRED)
-  
+
   # Test backend registry and dummy backend (direct instantiation, not via pluginlib)
-  ament_add_gtest(test_buffer_backend_registry 
+  ament_add_gtest(test_buffer_backend_registry
     test/test_buffer_backend_registry.cpp
   )
   if(TARGET test_buffer_backend_registry)

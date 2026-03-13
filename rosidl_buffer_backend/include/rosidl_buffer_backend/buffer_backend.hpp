@@ -21,6 +21,7 @@
 #include <string>
 #include <set>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "rmw/topic_endpoint_info.h"
@@ -80,7 +81,8 @@ public:
   /// Returns {compatible, groups of endpoint GID hashes}.
   /// @param endpoint_info Information about the discovered endpoint
   /// @param existing_endpoints List of existing endpoints for grouping decisions
-  /// @param endpoint_supported_backends Map of backend type to aux info string for the discovered endpoint
+  /// @param endpoint_supported_backends Map of backend type to aux info string
+  ///        for the discovered endpoint
   virtual std::pair<bool, std::vector<std::set<uint32_t>>> on_discovering_endpoint(
     const rmw_topic_endpoint_info_t & endpoint_info,
     const std::vector<rmw_topic_endpoint_info_t> & existing_endpoints,
@@ -91,7 +93,6 @@ public:
     (void)endpoint_supported_backends;
     return {true, {}};
   }
-
 };
 
 }  // namespace rosidl

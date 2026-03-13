@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef TEST__DUMMY_BUFFER_BACKEND_HPP_
-#define TEST__DUMMY_BUFFER_BACKEND_HPP_
+#ifndef DUMMY_BUFFER_BACKEND_HPP_
+#define DUMMY_BUFFER_BACKEND_HPP_
 
 #include <cstring>
 #include <memory>
@@ -122,4 +122,4 @@ PLUGINLIB_EXPORT_CLASS(
   rosidl_buffer_backend_registry::test::DummyBufferBackend,
   rosidl::BufferBackend)
 
-#endif  // TEST__DUMMY_BUFFER_BACKEND_HPP_
+#endif  // DUMMY_BUFFER_BACKEND_HPP_

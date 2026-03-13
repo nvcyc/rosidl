@@ -84,23 +84,36 @@ void BufferBackendRegistry::load_plugins()
       try {
         auto declared_classes = loader_->getDeclaredClasses();
         if (declared_classes.empty()) {
-          RCUTILS_LOG_INFO_NAMED("rosidl_buffer_backend_registry", "No buffer backend plugins found");
+          RCUTILS_LOG_INFO_NAMED(
+            "rosidl_buffer_backend_registry",
+            "No buffer backend plugins found");
         } else {
-          RCUTILS_LOG_INFO_NAMED("rosidl_buffer_backend_registry", "Discovered %zu buffer backend plugin(s)", declared_classes.size());
+          RCUTILS_LOG_INFO_NAMED(
+            "rosidl_buffer_backend_registry",
+            "Discovered %zu buffer backend plugin(s)",
+            declared_classes.size());
           for (const auto & class_name : declared_classes) {
             try {
               auto backend = loader_->createSharedInstance(class_name);
-              // Use the class name as the backend name (e.g., "cuda")
               register_backend(class_name, backend);
-              RCUTILS_LOG_INFO_NAMED("rosidl_buffer_backend_registry", "Loaded buffer backend plugin: %s", class_name.c_str());
+              RCUTILS_LOG_INFO_NAMED(
+                "rosidl_buffer_backend_registry",
+                "Loaded buffer backend plugin: %s",
+                class_name.c_str());
             } catch (const std::exception & e) {
-              RCUTILS_LOG_ERROR_NAMED("rosidl_buffer_backend_registry", "Failed to load %s: %s", class_name.c_str(), e.what());
+              RCUTILS_LOG_ERROR_NAMED(
+                "rosidl_buffer_backend_registry",
+                "Failed to load %s: %s",
+                class_name.c_str(), e.what());
               continue;
             }
           }
         }
       } catch (const std::exception & e) {
-        RCUTILS_LOG_ERROR_NAMED("rosidl_buffer_backend_registry", "Buffer backend plugin discovery error: %s", e.what());
+        RCUTILS_LOG_ERROR_NAMED(
+          "rosidl_buffer_backend_registry",
+          "Buffer backend plugin discovery error: %s",
+          e.what());
       }
 
       plugins_loaded_ = true;

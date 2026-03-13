@@ -76,12 +76,12 @@ PYBIND11_MODULE(_rosidl_buffer_py, m)
   m.doc() = "Python bindings for rosidl::Buffer<uint8_t>";
 
   py::class_<PyBuffer>(m, "Buffer")
-    .def("__len__", &PyBuffer::size)
-    .def("to_bytes", &PyBuffer::to_bytes,
-      "Copy buffer contents to Python bytes (handles non-CPU backends via to_vector)")
-    .def_property_readonly("backend_type", &PyBuffer::get_backend_type,
-      "Backend type identifier (e.g. 'cpu', 'demo', 'cuda')")
-    .def("__repr__", &PyBuffer::repr)
+  .def("__len__", &PyBuffer::size)
+  .def("to_bytes", &PyBuffer::to_bytes,
+    "Copy buffer contents to Python bytes (handles non-CPU backends via to_vector)")
+  .def_property_readonly("backend_type", &PyBuffer::get_backend_type,
+    "Backend type identifier (e.g. 'cpu', 'demo', 'cuda')")
+  .def("__repr__", &PyBuffer::repr)
   ;
 
   m.def("is_buffer", [](py::object obj) -> bool {
