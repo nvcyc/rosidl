@@ -49,7 +49,7 @@ void initialize_buffer_backends()
       kLoggerName, "Processing backend '%s' (type: %s)",
       backend_name.c_str(), backend_type.c_str());
 
-    rosidl_typesupport_fastrtps_cpp::BackendDescriptorOps ops;
+    rosidl_typesupport_fastrtps_cpp::BufferDescriptorOps ops;
 
     auto backend_ptr = backend;
     ops.create_descriptor_with_endpoint = [backend_ptr](
@@ -75,7 +75,7 @@ void initialize_buffer_backends()
         kLoggerName,
         "  Backend '%s' did not register FastCDR descriptor serializers. "
         "Ensure the backend constructor calls "
-        "rosidl::register_buffer_descriptor<DescriptorMsgT>()",
+        "rosidl_typesupport_fastrtps_cpp::register_buffer_descriptor<DescriptorMsgT>()",
         backend_type.c_str());
     }
   }

@@ -13,7 +13,6 @@ endif()
 # Find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rmw REQUIRED)
-find_package(rosidl_typesupport_fastrtps_cpp REQUIRED)
 
 # This is a header-only library
 add_library(${PROJECT_NAME} INTERFACE)
@@ -24,7 +23,7 @@ target_include_directories(${PROJECT_NAME} INTERFACE
 )
 
 target_link_libraries(${PROJECT_NAME} INTERFACE
-  rosidl_typesupport_fastrtps_cpp::rosidl_typesupport_fastrtps_cpp
+  rmw::rmw
 )
 
 # Install headers
@@ -45,7 +44,7 @@ install(
 
 # Export dependencies
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(rmw rosidl_typesupport_fastrtps_cpp)
+ament_export_dependencies(rmw)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
