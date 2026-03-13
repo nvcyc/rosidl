@@ -16,6 +16,7 @@
 #define ROSIDL_BUFFER__BUFFER_HPP_
 
 #include <algorithm>
+#include <cstddef>
 #include <initializer_list>
 #include <memory>
 #include <stdexcept>
