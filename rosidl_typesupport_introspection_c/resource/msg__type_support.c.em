@@ -143,7 +143,7 @@ size_t @(function_prefix)__size_function__@(message.structure.namespaced_type.na
   const @(idl_type_to_c(member.type)) * member =
     (const @(idl_type_to_c(member.type)) *)(untyped_member);
   if (member->is_rosidl_buffer) {
-    return rosidl_buffer_uint8_size((const void *)member->data);
+    rosidl_buffer_uint8_throw_if_not_cpu((const void *)member->data);
   }
   return member->size;
 }
@@ -154,7 +154,7 @@ const void * @(function_prefix)__get_const_function__@(message.structure.namespa
   const @(idl_type_to_c(member.type)) * member =
     (const @(idl_type_to_c(member.type)) *)(untyped_member);
   if (member->is_rosidl_buffer) {
-    return &rosidl_buffer_uint8_data((const void *)member->data)[index];
+    rosidl_buffer_uint8_throw_if_not_cpu((const void *)member->data);
   }
   return &member->data[index];
 }
@@ -165,7 +165,7 @@ void * @(function_prefix)__get_function__@(message.structure.namespaced_type.nam
   @(idl_type_to_c(member.type)) * member =
     (@(idl_type_to_c(member.type)) *)(untyped_member);
   if (member->is_rosidl_buffer) {
-    return &rosidl_buffer_uint8_data_mut((void *)member->data)[index];
+    rosidl_buffer_uint8_throw_if_not_cpu((const void *)member->data);
   }
   return &member->data[index];
 }
@@ -196,8 +196,7 @@ bool @(function_prefix)__resize_function__@(message.structure.namespaced_type.na
   @(idl_type_to_c(member.type)) * member =
     (@(idl_type_to_c(member.type)) *)(untyped_member);
   if (member->is_rosidl_buffer) {
-    rosidl_buffer_uint8_resize((void *)member->data, size);
-    return true;
+    rosidl_buffer_uint8_throw_if_not_cpu((const void *)member->data);
   }
   @(idl_type_to_c(member.type))__fini(member);
   return @(idl_type_to_c(member.type))__init(member, size);

@@ -15,35 +15,11 @@
 #ifndef ROSIDL_BUFFER__C_HELPERS_H_
 #define ROSIDL_BUFFER__C_HELPERS_H_
 
-#include <stddef.h>
-#include <stdint.h>
-
 #include "rosidl_buffer/visibility_control.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/// Get the size of a Buffer<uint8_t>. Works for all backends.
-/// @param buffer_ptr Opaque pointer to an rosidl::Buffer<uint8_t>
-ROSIDL_BUFFER_PUBLIC
-size_t rosidl_buffer_uint8_size(const void * buffer_ptr);
-
-/// Get a const pointer to the underlying CPU data. Throws for non-CPU backends.
-/// @param buffer_ptr Opaque pointer to an rosidl::Buffer<uint8_t>
-ROSIDL_BUFFER_PUBLIC
-const uint8_t * rosidl_buffer_uint8_data(const void * buffer_ptr);
-
-/// Get a mutable pointer to the underlying CPU data. Throws for non-CPU backends.
-/// @param buffer_ptr Opaque pointer to an rosidl::Buffer<uint8_t>
-ROSIDL_BUFFER_PUBLIC
-uint8_t * rosidl_buffer_uint8_data_mut(void * buffer_ptr);
-
-/// Resize a Buffer<uint8_t>. Throws for non-CPU backends.
-/// @param buffer_ptr Opaque pointer to an rosidl::Buffer<uint8_t>
-/// @param size New size
-ROSIDL_BUFFER_PUBLIC
-void rosidl_buffer_uint8_resize(void * buffer_ptr, size_t size);
 
 /// Throw std::runtime_error if the buffer is not CPU-backed.
 /// @param buffer_ptr Opaque pointer to an rosidl::Buffer<uint8_t>

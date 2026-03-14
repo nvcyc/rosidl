@@ -17,33 +17,6 @@
 
 extern "C" {
 
-size_t rosidl_buffer_uint8_size(const void * buffer_ptr)
-{
-  const auto * buf = static_cast<const rosidl::Buffer<uint8_t> *>(buffer_ptr);
-  return buf->size();
-}
-
-const uint8_t * rosidl_buffer_uint8_data(const void * buffer_ptr)
-{
-  const auto * buf = static_cast<const rosidl::Buffer<uint8_t> *>(buffer_ptr);
-  buf->throw_if_not_cpu_backend();
-  return buf->data();
-}
-
-uint8_t * rosidl_buffer_uint8_data_mut(void * buffer_ptr)
-{
-  auto * buf = static_cast<rosidl::Buffer<uint8_t> *>(buffer_ptr);
-  buf->throw_if_not_cpu_backend();
-  return buf->data();
-}
-
-void rosidl_buffer_uint8_resize(void * buffer_ptr, size_t size)
-{
-  auto * buf = static_cast<rosidl::Buffer<uint8_t> *>(buffer_ptr);
-  buf->throw_if_not_cpu_backend();
-  buf->resize(size);
-}
-
 void rosidl_buffer_uint8_throw_if_not_cpu(const void * buffer_ptr)
 {
   const auto * buf = static_cast<const rosidl::Buffer<uint8_t> *>(buffer_ptr);
