@@ -25,6 +25,8 @@
 #include "rosidl_buffer/buffer_impl_base.hpp"
 #include "rosidl_buffer/cpu_buffer_impl.hpp"
 
+#include "non_cpu_buffer_impl.hpp"
+
 using rosidl::Buffer;
 using rosidl::BufferImplBase;
 using rosidl::CpuBufferImpl;
@@ -526,33 +528,6 @@ TEST(TestBuffer, with_struct)
   std::vector<Point> copied = buffer.to_vector();
   EXPECT_DOUBLE_EQ(3.0, copied[0].z);
 }
-
-// Minimal non-CPU implementation for testing that CPU-only operations throw.
-template<typename T>
-class NonCpuBufferImpl : public BufferImplBase<T>
-{
-public:
-  explicit NonCpuBufferImpl(size_t count)
-  : size_(count) {}
-
-  std::string get_backend_type() const override {return "non_cpu_test";}
-  size_t size() const override {return size_;}
-
-  std::unique_ptr<BufferImplBase<T>> to_cpu() const override
-  {
-    auto cpu = std::make_unique<CpuBufferImpl<T>>();
-    cpu->get_storage().resize(size_);
-    return cpu;
-  }
-
-  std::unique_ptr<BufferImplBase<T>> clone() const override
-  {
-    return std::make_unique<NonCpuBufferImpl<T>>(size_);
-  }
-
-private:
-  size_t size_;
-};
 
 TEST(TestBufferNonCpu, backend_type) {
   auto impl = std::make_unique<NonCpuBufferImpl<uint8_t>>(4);
